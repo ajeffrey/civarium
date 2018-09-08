@@ -1,0 +1,22 @@
+{
+  "name": "vox-populi",
+  "description": "voxel game",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "webpack-dev-server"
+  },
+  "devDependencies": {
+    "@types/three": "^0.92.18",
+    "babylonjs": "^3.2.0",
+    "cannon": "^0.6.2",
+    "copy-webpack-plugin": "^4.5.2",
+    "rxjs": "^6.3.2",
+    "three": "^0.96.0",
+    "ts-loader": "^5.0.0",
+    "typescript": "^3.0.3",
+    "webpack": "^4.17.2",
+    "webpack-cli": "^3.1.0",
+    "webpack-dev-server": "^3.1.8",
+    "webpack-glsl-loader": "^1.0.1"
+  }
+}
