@@ -1,6 +1,6 @@
 {
-  "name": "vox-populi",
-  "description": "voxel game",
+  "name": "civarium",
+  "description": "0-player civilization game",
   "version": "0.0.1",
   "scripts": {
     "start": "webpack-dev-server"
