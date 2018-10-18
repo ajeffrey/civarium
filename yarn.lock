@@ -2,6 +2,10 @@
 # yarn lockfile v1
 
 
+"@types/cannon@^0.1.3":
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/@types/cannon/-/cannon-0.1.3.tgz#cfebd11336e66334087008234d2883348be9b329"
+
 "@types/three@^0.92.18":
   version "0.92.18"
   resolved "https://registry.yarnpkg.com/@types/three/-/three-0.92.18.tgz#49db164e47b00894bdf735f507af8993e5f777a9"
@@ -2144,6 +2148,10 @@ node-pre-gyp@^0.10.0:
     rimraf "^2.6.1"
     semver "^5.3.0"
     tar "^4"
+
+noisejs@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/noisejs/-/noisejs-2.1.0.tgz#84b4c4cd04ff43367034f65253e213e0d9fe1aff"
 
 nopt@^4.0.1:
   version "4.0.1"
