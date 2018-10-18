@@ -40,8 +40,8 @@ module.exports = {
       to: DEST,
     }]),
     new CopyPlugin([{
-      from: path.join(SRC, 'Shaders'),
-      to: path.join(DEST, 'Shaders'),
+      from: path.join(ROOT, 'assets'),
+      to: path.join(DEST),
     }]),
   ],
   devServer: {
