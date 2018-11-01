@@ -1,59 +1,48 @@
 import * as THREE from 'three';
-import * as CANNON from 'cannon';
-import World from './ui/World';
-import DayCycle from './ui/DayCycle';
-import Terrain from './ui/Terrain';
+import { Player, Sun, Camera } from './entities';
+import { DayCycle, Physics, Renderer } from './systems';
+import Terrain from './terrain/Terrain';
 import TimeLabel from './ui/TimeLabel';
-import Player from './ui/Player';
-import { keys$, scroll$ } from './Controls';
+import { Controls } from './ui/Controls';
 
-const world = World();
-document.body.appendChild(world.domElement());
+// Entities
+const controls = new Controls();
+const sun = new Sun();
+const camera = new Camera(20);
+const player = new Player(controls);
+const terrain = Terrain();
+const chunk = terrain.generate(-20, -20, 20, 20);
+const edges = new THREE.EdgesGeometry( chunk.mesh.geometry );
+const line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0xffffff } ) );
 
-const dayCycle = DayCycle(world);
-const terrain = Terrain(world, { size: 40 });
+
 const timeLabel = TimeLabel(document.body);
-const player = Player(world);
 
-world.onUpdate((deltaTime: number) => {
-  const time = dayCycle.getTime();
-  timeLabel.update(time);
-});
+// Systems
+const dayCycle = new DayCycle(sun, timeLabel);
+const physics = new Physics();
+const renderer = new Renderer(camera);
+renderer.attachTo(document.body);
 
-const ARROW_LEFT = 37;
-const ARROW_UP = 38;
-const ARROW_RIGHT = 39;
-const ARROW_DOWN = 40;
+physics.add(player);
+physics.add({ body: chunk.body, update: () => {} });
+renderer.add(sun);
+renderer.add(player);
+renderer.add(camera);
+renderer.add({ object: chunk.mesh, update: () => {} });
+renderer.add({ object: line, update: () => {} });
+(window as any).THREE = THREE;
+// (window as any).scene = scene;
 
-keys$.subscribe(keys => {
-  let x = 0;
-  let z = 0;
-
-  player.setJumping(keys[32]);
-
-  if(keys[ARROW_LEFT] && !keys[ARROW_RIGHT]) {
-    x = -1;
-  } else if(keys[ARROW_RIGHT] && !keys[ARROW_LEFT]) {
-    x = 1;
-  }
-
-  if(keys[ARROW_UP] && !keys[ARROW_DOWN]) {
-    z = -1;
-  } else if(keys[ARROW_DOWN] && !keys[ARROW_UP]) {
-    z = 1;
-  }
-
-  console.log(x, z);
-
-  player.setMoving(x, z);
-});
-
-let time = performance.now();
-let newTime;
-const step = () => {
-  setTimeout(() => requestAnimationFrame(step), 1000 / 60);
-  world.update(1 / 60);
+let prevTime = performance.now();
+const step = (t) => {
+  const dt = (t - prevTime) / 1000;
+  prevTime = t;
+  dayCycle.step(dt);
+  physics.step(dt);
+  renderer.step(dt);
+  requestAnimationFrame(step);
 }
 
-step();
+requestAnimationFrame(step);
 

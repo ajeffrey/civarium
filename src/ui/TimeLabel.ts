@@ -10,7 +10,7 @@ export default (parent: HTMLElement) => {
   parent.appendChild(timeLabel);
 
   return {
-    update: (clockTime: number) => {
+    setTime: (clockTime: number) => {
       timeLabel.textContent = `Time: ${Math.floor(clockTime / 60)}:${Math.floor(clockTime % 60)}`;
     },
   };
