@@ -25,7 +25,7 @@ export class Player extends Entity {
       mass: 1,
       fixedRotation: true,
       material: PLAYER_MATERIAL,
-      position: new CANNON.Vec3(0, 10, 0),
+      position: new CANNON.Vec3(0, 20, 0),
       shape: new CANNON.Box(new CANNON.Vec3(0.75 / 2, 3.5 / 2, 0.75 / 2)),
       linearDamping: 0
     });

@@ -4,7 +4,7 @@ import { Camera } from '../entities';
 
 export class Renderer extends System {
   private renderer: THREE.Renderer;
-  private scene: THREE.Scene;
+  public scene: THREE.Scene;
   private camera: Camera;
 
   constructor(camera: Camera) {
@@ -17,11 +17,14 @@ export class Renderer extends System {
   
     const scene = this.scene = new THREE.Scene();
     scene.name = 'Scene';
-    scene.background = new THREE.Color(0xf0f0f0);
+    scene.background = new THREE.Color(0xaaffff);
   }
 
   attachTo(parent: HTMLElement) {
     parent.appendChild(this.renderer.domElement);
+    this.renderer.domElement.addEventListener('click', () => {
+      this.renderer.domElement.webkitRequestPointerLock();
+    });
   }
 
   add(entity: Entity) {
