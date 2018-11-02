@@ -1,5 +1,4 @@
-import { Sun } from "../entities";
-import { System } from "../ecs";
+import { System, IEntity } from "../ecs";
 
 const DAY_LENGTH = 24 * 60; // in minutes
 const MINUTES_PER_SECOND = 30;
@@ -10,19 +9,22 @@ const time = (hours: number, minutes: number) => {
 
 export class DayCycle extends System {
   private clockTime: number;
-  private sun: Sun;
-  private clock: any;
 
-  constructor(sun: Sun, clock: any) {
+  constructor() {
     super();
     this.clockTime = time(12, 0);
-    this.sun = sun;
-    this.clock = clock;
+  }
+
+  add(entity: IEntity) {
+    if(entity.setTime) {
+      super.add(entity);
+    }
   }
 
   step(dt: number) {
     this.clockTime = (this.clockTime + (dt * MINUTES_PER_SECOND)) % DAY_LENGTH;
-    this.sun.setTime(this.clockTime, DAY_LENGTH);
-    this.clock.setTime(this.clockTime);
+    for(const entity of this.entities) {
+      entity.setTime(this.clockTime, DAY_LENGTH);
+    }
   }
 };
