@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Entity, System } from '../ECS';
+import { IEntity, System } from '../ECS';
 import { Camera } from '../entities';
 
 export class Renderer extends System {
@@ -17,17 +17,14 @@ export class Renderer extends System {
   
     const scene = this.scene = new THREE.Scene();
     scene.name = 'Scene';
-    scene.background = new THREE.Color(0xaaffff);
+    scene.background = new THREE.Color(0x333333);
   }
 
   attachTo(parent: HTMLElement) {
     parent.appendChild(this.renderer.domElement);
-    this.renderer.domElement.addEventListener('click', () => {
-      this.renderer.domElement.webkitRequestPointerLock();
-    });
   }
 
-  add(entity: Entity) {
+  add(entity: IEntity) {
     if(entity.object) {
       this.scene.add(entity.object);
     }

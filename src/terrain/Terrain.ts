@@ -3,11 +3,15 @@ import * as CANNON from 'cannon';
 import SimplexNoise from 'fast-simplex-noise';
 import { SURFACE_MATERIAL } from '../materials';
 
+const TERRAIN_MATERIAL = new THREE.MeshLambertMaterial({
+  color: 0xFFDDDD
+});
+
 export default () => {
   const heightmap = new SimplexNoise({
     frequency: 0.01,
-    min: -5,
-    max: 10,
+    min: 0,
+    max: 15,
     octaves: 8
   });
 
@@ -43,22 +47,25 @@ export default () => {
     terrain.computeVertexNormals(true);
     terrain.computeFaceNormals();
     terrain.computeBoundingBox();
-    const mesh = new THREE.Mesh(
-      terrain,
-      new THREE.MeshLambertMaterial({
-        color: 0xFFDDDD
-      })
-    );
-
+    const mesh = new THREE.Mesh(terrain, TERRAIN_MATERIAL);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
+
+    const edges = new THREE.EdgesGeometry(mesh.geometry, 0);
+    const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x775555 }));
+
+    const object = new THREE.Object3D();
+    object.add(mesh);
+    object.add(line);
+
+    console.log(heights);
 
     const field = new CANNON.Heightfield(heights, { elementSize: 1 });
     const body = new CANNON.Body({ mass: 0, material: SURFACE_MATERIAL });
     body.addShape(field);
-    body.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
-
-    return { mesh, body };
+    body.quaternion.setFromEuler(-Math.PI / 2, 0, -Math.PI / 2);
+    body.position.set(x1, -5, z1);
+    return { object, body };
   };
 
   return { generate };

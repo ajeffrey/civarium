@@ -1,15 +1,16 @@
 import * as CANNON from 'cannon';
+import * as THREE from 'three';
 import { System, Entity } from '../ECS';
 import { SURFACE_MATERIAL, PLAYER_MATERIAL } from '../materials';
 
 const surfaceContact = new CANNON.ContactMaterial(
   SURFACE_MATERIAL,
   PLAYER_MATERIAL,
-  { friction: 0, restitution: 0 }
+  { friction: 0.5, restitution: 0 }
 );
 
 export class Physics extends System {
-  private world: CANNON.World;
+  public world: CANNON.World;
 
   constructor() {
     super();
@@ -34,8 +35,9 @@ export class Physics extends System {
   step(dt: number) {
     this.world.step(dt);
     for(const entity of this.entities) {
-      const { x, y, z } = entity.body.position;
-      entity.object.position.set(x, y, z);
+      const { position, quaternion } = entity.body;
+      entity.object.position.set(position.x, position.y, position.z);
+      entity.object.rotation.setFromQuaternion(new THREE.Quaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w));
     }
   }
 };

@@ -1,3 +1,3 @@
 export * from './Entity';
 export * from './System';
-export * from './Scene';
+export * from './World';

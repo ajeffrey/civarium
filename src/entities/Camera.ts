@@ -37,14 +37,13 @@ export class Camera extends Entity {
     object.name = 'Camera Dolly';
     object.add(inner);
     inner.add(camera);
-    this.rotate(-45, -45);
+    this.rotate(45, -45);
     camera.position.set(0, 0, 1000);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
   }
 
   zoomBy(zoom: number) {
-    console.log(this.zoom, zoom, clamp(this.zoom + zoom, 10, 30));
-    this.zoom = clamp(this.zoom + zoom, 10, 30);
+    this.zoom = clamp(this.zoom + zoom, 10, 50);
     const { left, right, top, bottom } = calculateViewport(this.zoom);
     this.camera.left = left;
     this.camera.top = top;

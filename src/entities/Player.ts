@@ -6,6 +6,7 @@ import { Controls } from '../ui/Controls';
 import { Camera } from './Camera';
 
 export class Player extends Entity {
+  public speed = 3;
   private camera: Camera;
   private controls: Controls;
 
@@ -32,7 +33,13 @@ export class Player extends Entity {
   }
 
   update(dt: number) {
-    this.body.position.x += this.controls.xAxis() * dt;
-    this.body.position.z += this.controls.yAxis() * dt;
+    console.log('update');
+    const x = this.controls.xAxis();
+    const y = this.controls.yAxis();
+    if(x || y) {
+      console.log(x, y);
+    }
+    this.body.position.x += this.controls.xAxis() * dt * this.speed;
+    this.body.position.z -= this.controls.yAxis() * dt * this.speed;
   }
 };

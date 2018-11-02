@@ -1,13 +1,13 @@
-import { Entity } from "./Entity";
+import { IEntity } from "./Entity";
 
 export abstract class System {
-  protected entities: Entity[];
+  protected entities: IEntity[];
 
   constructor() {
     this.entities = [];
   }
 
-  add(entity: Entity) {
+  add(entity: IEntity) {
     this.entities.push(entity);
   }
   
