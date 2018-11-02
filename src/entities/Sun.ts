@@ -24,6 +24,7 @@ export class Sun extends Entity {
     sunLight.shadow.camera.top = 50;
     sunLight.shadow.camera.bottom = -50;
     sun.add(sunLight);
+    sun.add(ambientLight);
     sunLight.position.y = 40;
 
     this.object = sun;
@@ -31,6 +32,6 @@ export class Sun extends Entity {
 
   setTime(clockTime: number, dayLength: number) {
     this.object.rotation.z = (Math.PI) + (clockTime / dayLength * Math.PI * 2);
-    this.ambientLight.intensity = 0.75 + (0.25 * Math.sin(clockTime / dayLength * Math.PI));
+    this.ambientLight.intensity = 0.5 + (0.25 * Math.sin(clockTime / dayLength * Math.PI));
   }
 };
