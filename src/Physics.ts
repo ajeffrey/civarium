@@ -1,7 +1,11 @@
 import * as CANNON from 'cannon';
 import * as THREE from 'three';
-import { System, Entity } from '../framework';
-import { SURFACE_MATERIAL, PLAYER_MATERIAL } from '../materials';
+import { SURFACE_MATERIAL, PLAYER_MATERIAL } from './materials';
+
+interface Entity {
+  body: CANNON.Body;
+  object: THREE.Object3D;
+}
 
 const surfaceContact = new CANNON.ContactMaterial(
   SURFACE_MATERIAL,
@@ -9,11 +13,12 @@ const surfaceContact = new CANNON.ContactMaterial(
   { friction: 0.5, restitution: 0 }
 );
 
-export class Physics extends System {
+export default class Physics {
   public world: CANNON.World;
+  private entities: Entity[];
 
   constructor() {
-    super();
+    this.entities = [];
     const world = this.world = new CANNON.World();
     world.broadphase = new CANNON.NaiveBroadphase();
     world.gravity.set(0, 0, -10);
@@ -27,7 +32,6 @@ export class Physics extends System {
 
   add(entity: Entity) {
     if(entity.body && entity.object) {
-      super.add(entity);
       this.world.addBody(entity.body);
     }
   }

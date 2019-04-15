@@ -1,15 +1,14 @@
 import * as THREE from 'three';
-import { Entity } from '../framework';
 
-export class Sun extends Entity {
+export default class Sun {
   private ambientLight: THREE.AmbientLight;
-  constructor() {
-    super();
+  public root: THREE.Object3D;
 
+  constructor() {
     const ambientLight = this.ambientLight = new THREE.AmbientLight(0x010101 * 100);
     ambientLight.name = 'Ambient Light';
     
-    const sun = new THREE.Object3D();
+    const sun = this.root = new THREE.Object3D();
     sun.name = 'Sun';
     
     const sunLight = new THREE.DirectionalLight(0xffffff, 0.25);
@@ -25,12 +24,10 @@ export class Sun extends Entity {
     sun.add(sunLight);
     sun.add(ambientLight);
     sunLight.position.x = 20;
-
-    this.object = sun;
   }
 
-  setTime(clockTime: number, dayLength: number) {
-    this.object.rotation.y = Math.PI / 2 - (clockTime / dayLength * Math.PI * 2);
-    this.ambientLight.intensity = (0.25 * Math.sin(clockTime / dayLength * Math.PI));
+  setTime(dayRatio: number) {
+    this.root.rotation.y = Math.PI / 2 - (dayRatio * Math.PI * 2);
+    this.ambientLight.intensity = (0.25 * Math.sin(dayRatio * Math.PI));
   }
 };

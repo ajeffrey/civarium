@@ -1,37 +1,11 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon';
 import SimplexNoise from 'fast-simplex-noise';
-import { SURFACE_MATERIAL } from '../materials';
-import { Entity } from '../framework';
+import { SURFACE_MATERIAL } from './materials';
 
 const TERRAIN_MATERIAL = new THREE.MeshLambertMaterial({
   color: 0xddffdd
 });
-
-class Cell extends Entity {
-  constructor(x: number, y: number, baseHeight: number) {
-    super();
-  }
-}
-
-class Grid extends Entity {
-  constructor(width: number, height: number) {
-    super();
-    const noise = new SimplexNoise({
-      frequency: 0.0025,
-      min: 0,
-      max: 1,
-      octaves: 2
-    });
-
-    const heightmap = [];
-    for(let y = 0; y < height; y++) {
-      for(let x = 0; x < width; x++) {
-        heightmap.push(noise.scaled2D(x, y));
-      }
-    }
-  }
-}
 
 export default () => {
   const heightmap = new SimplexNoise({

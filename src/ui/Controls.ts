@@ -1,6 +1,5 @@
 import * as THREE from 'three';
-import { Camera } from "../entities";
-import { Renderer } from '../systems';
+import Camera from "../Camera";
 
 const ARROW_LEFT = 37;
 const ARROW_UP = 38;
@@ -27,8 +26,7 @@ export class Controls {
     });
 
     window.addEventListener('mousewheel', (e: MouseWheelEvent) => {
-      this.camera.zoomBy(e.wheelDelta / 500);
-      console.log(e.wheelDelta);
+      this.camera.zoomBy(-e.deltaY / 500);
     });
 
     window.addEventListener('mouseup', () => {
