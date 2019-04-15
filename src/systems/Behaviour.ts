@@ -1,5 +1,5 @@
 import * as CANNON from 'cannon';
-import { IEntity, System } from '../ECS';
+import { IEntity, System } from '../framework';
 
 export class Behaviour extends System {
   add(entity: IEntity) {

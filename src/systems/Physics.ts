@@ -1,6 +1,6 @@
 import * as CANNON from 'cannon';
 import * as THREE from 'three';
-import { System, Entity } from '../ECS';
+import { System, Entity } from '../framework';
 import { SURFACE_MATERIAL, PLAYER_MATERIAL } from '../materials';
 
 const surfaceContact = new CANNON.ContactMaterial(
@@ -16,7 +16,7 @@ export class Physics extends System {
     super();
     const world = this.world = new CANNON.World();
     world.broadphase = new CANNON.NaiveBroadphase();
-    world.gravity.set(0, -10, 0);
+    world.gravity.set(0, 0, -10);
     world.quatNormalizeFast = false;
     world.quatNormalizeSkip = 0;
     world.addContactMaterial(surfaceContact);

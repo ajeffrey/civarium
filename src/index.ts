@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { World } from './ECS';
+import { World } from './framework';
 import { Player, Sun, Camera } from './entities';
 import { DayCycle, Physics, Behaviour, Renderer } from './systems';
 import Terrain from './terrain/Terrain';
@@ -29,19 +29,23 @@ const timeLabel = TimeLabel(document.body);
 world.add(timeLabel);
 
 const controls = new Controls(camera);
-const player = new Player(controls);
+const player = new Player();
 world.add(player);
 
 // Terrain
 const terrain = Terrain();
 
-const chunk = terrain.generate(-100, -100, 100, 100);
-renderer.add({ object: chunk.object });
+const chunk = terrain.generate(500, 500);
+chunk.body.position.set(-100, -100, 0);
+world.add(chunk);
 
-// const debug = new CannonDebugRenderer(renderer.scene, physics.world, {});
+const debug = new CannonDebugRenderer(renderer.scene, physics.world, {});
+const axes = new THREE.AxesHelper(10);
+axes.position.set(0, 0, 20);
+world.add({ object: axes });
 
 console.log('chunk', chunk.body);
-physics.add({ body: chunk.body, object: new THREE.Object3D() });
+// physics.add({ body: chunk.body, object: new THREE.Object3D() });
 
 (window as any).THREE = THREE;
 (window as any).scene = renderer.scene;
@@ -51,6 +55,7 @@ const step = (t) => {
   const dt = (t - prevTime) / 1000;
   prevTime = t;
   world.step(dt);
+  // debug.update();
   requestAnimationFrame(step);
 }
 

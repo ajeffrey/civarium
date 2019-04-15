@@ -1,7 +1,7 @@
-import { System, IEntity } from "../ecs";
+import { System, IEntity } from "../framework";
 
 const DAY_LENGTH = 24 * 60; // in minutes
-const MINUTES_PER_SECOND = 30;
+const MINUTES_PER_SECOND = 15;
 
 const time = (hours: number, minutes: number) => {
   return hours * 60 + minutes;
