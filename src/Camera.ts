@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { Entity } from '../framework';
 
 interface ICameraViewport {
   top: number;
@@ -22,23 +21,23 @@ const calculateViewport = (zoom: number): ICameraViewport => {
   };
 };
 
-export class Camera extends Entity {
+export default class Camera {
   private zoom: number;
   public camera: THREE.OrthographicCamera;
+  public root: THREE.Object3D;
   private inner: THREE.Object3D;
 
   constructor(zoom: number) {
-    super();
     this.zoom = zoom;
     const { left, right, top, bottom } = calculateViewport(zoom);
     const camera = this.camera = new THREE.OrthographicCamera(left, right, top, bottom, -10, 2000);
     camera.up = new THREE.Vector3(0, 0, 1);
-    const object = this.object = new THREE.Object3D();
+    const root = this.root = new THREE.Object3D();
     const inner = this.inner = new THREE.Object3D();
-    object.name = 'Camera Dolly';
-    object.add(inner);
+    root.name = 'Camera Dolly';
+    root.add(inner);
     inner.add(camera);
-    camera.position.set(0, 1000, 1000);
+    camera.position.set(1000, 1000, 1000);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
   }
 
@@ -53,7 +52,7 @@ export class Camera extends Entity {
   }
 
   rotate(h: number, v: number) {
-    this.object.rotateOnWorldAxis(new THREE.Vector3(0, 0, -1), h);
+    this.root.rotateOnWorldAxis(new THREE.Vector3(0, 0, -1), h);
     this.inner.rotateOnAxis(new THREE.Vector3(-1, 0, 0), v);
     this.inner.rotation.x = clamp(this.inner.rotation.x, -0.6, 0);
   }
@@ -63,6 +62,6 @@ export class Camera extends Entity {
   }
 
   update(dt: number) {
-    this.object.position.add(new THREE.Vector3())
+    this.root.position.add(new THREE.Vector3())
   }
 };

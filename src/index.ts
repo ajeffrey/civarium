@@ -1,60 +1,76 @@
 import * as THREE from 'three';
-import { World } from './framework';
-import { Player, Sun, Camera } from './entities';
-import { DayCycle, Physics, Behaviour, Renderer } from './systems';
-import Terrain from './terrain/Terrain';
-import TimeLabel from './ui/TimeLabel';
+import Camera from './Camera';
+import Sun from './Sun';
+import Human from './Human';
+import Physics from './Physics';
+import Terrain from './Terrain';
+import WallClock from './ui/WallClock';
 import { Controls } from './ui/Controls';
 import { CannonDebugRenderer } from './ui/CannonDebugRenderer';
+import Clock from './Clock';
 
-// Camera
-const camera = new Camera(20);
+const renderer = new THREE.WebGLRenderer({ alpha:true });
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+renderer.setSize(window.innerWidth, window.innerHeight);
+window.addEventListener('resize', () => {
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
 
 // Systems
-const dayCycle = new DayCycle();
 const physics = new Physics();
-const behaviour = new Behaviour();
-const renderer = new Renderer(camera);
-renderer.attachTo(document.body);
+document.body.appendChild(renderer.domElement);
 
-// World
-const world = new World([dayCycle, behaviour, physics, renderer]);
-world.add(camera);
+const scene = this.scene = new THREE.Scene();
+scene.name = 'Scene';
+scene.background = new THREE.Color(0xddddff);
+
+const camera = new Camera(20);
+scene.add(camera.root);
 
 // Entities
 const sun = new Sun();
-world.add(sun);
+scene.add(sun.root);
 
-const timeLabel = TimeLabel(document.body);
-world.add(timeLabel);
+const wallClock = WallClock(document.body);
 
 const controls = new Controls(camera);
-const player = new Player();
-world.add(player);
+const human = new Human();
+scene.add(human.object);
+physics.add(human);
 
 // Terrain
 const terrain = Terrain();
 
-const chunk = terrain.generate(500, 500);
-chunk.body.position.set(-100, -100, 0);
-world.add(chunk);
+const chunk = terrain.generate(50, 50);
+chunk.body.position.set(-25, -25, 0);
+scene.add(chunk.object);
+physics.add(chunk);
 
-const debug = new CannonDebugRenderer(renderer.scene, physics.world, {});
 const axes = new THREE.AxesHelper(10);
 axes.position.set(0, 0, 20);
-world.add({ object: axes });
-
-console.log('chunk', chunk.body);
-// physics.add({ body: chunk.body, object: new THREE.Object3D() });
+scene.add(axes);
 
 (window as any).THREE = THREE;
-(window as any).scene = renderer.scene;
+(window as any).scene = scene;
 
+let wallTime = 12 * 60;
+const MINUTES_PER_SECOND = 15;
+const DAY_LENGTH = 24 * 60;
 let prevTime = performance.now();
 const step = (t) => {
   const dt = (t - prevTime) / 1000;
   prevTime = t;
-  world.step(dt);
+
+  wallTime += dt * MINUTES_PER_SECOND;
+  wallTime = wallTime % DAY_LENGTH;
+  sun.setTime(wallTime / DAY_LENGTH);
+  wallClock.setTime(wallTime);
+
+  renderer.render(scene, camera.camera);
+  physics.step(dt);
+
   // debug.update();
   requestAnimationFrame(step);
 }

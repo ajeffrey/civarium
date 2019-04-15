@@ -1,14 +1,13 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon';
-import { Entity } from '../framework';
-import { PLAYER_MATERIAL } from '../materials';
+import { PLAYER_MATERIAL } from './materials';
 
-export class Player extends Entity {
+export default class Human {
   public speed = 3;
+  public object: THREE.Object3D;
+  public body: CANNON.Body;
 
   constructor() {
-    super();
-
     const mesh = this.object = new THREE.Mesh(
       new THREE.BoxGeometry(0.75, 0.75, 3.5),
       new THREE.MeshStandardMaterial({ color: 0xff0000 }),
