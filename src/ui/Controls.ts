@@ -8,10 +8,11 @@ const ARROW_RIGHT = 39;
 const ARROW_DOWN = 40;
 
 export class Controls {
-  private camera: Camera;
+  public speed = 10;
   private keys: {};
   private isDragging: boolean;
   private dragPos: THREE.Vector2;
+  private camera: Camera;
 
   constructor(camera: Camera) {
     this.camera = camera;
@@ -74,6 +75,14 @@ export class Controls {
       return 1;
     } else {
       return 0;
+    }
+  }
+
+  update(dt: number) {
+    const x = this.xAxis();
+    const y = this.yAxis();
+    if(x || y) {
+      this.camera.move(new THREE.Vector3(x * dt * this.speed, 0, y * dt * this.speed));
     }
   }
 }

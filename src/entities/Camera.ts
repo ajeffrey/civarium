@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Entity } from '../ecs';
+import { Entity } from '../framework';
 
 interface ICameraViewport {
   top: number;
@@ -32,18 +32,18 @@ export class Camera extends Entity {
     this.zoom = zoom;
     const { left, right, top, bottom } = calculateViewport(zoom);
     const camera = this.camera = new THREE.OrthographicCamera(left, right, top, bottom, -10, 2000);
+    camera.up = new THREE.Vector3(0, 0, 1);
     const object = this.object = new THREE.Object3D();
     const inner = this.inner = new THREE.Object3D();
     object.name = 'Camera Dolly';
     object.add(inner);
     inner.add(camera);
-    this.rotate(45, -45);
-    camera.position.set(0, 0, 1000);
+    camera.position.set(0, 1000, 1000);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
   }
 
   zoomBy(zoom: number) {
-    this.zoom = clamp(this.zoom + zoom, 10, 50);
+    this.zoom = clamp(this.zoom + zoom, 5, 20);
     const { left, right, top, bottom } = calculateViewport(this.zoom);
     this.camera.left = left;
     this.camera.top = top;
@@ -53,14 +53,13 @@ export class Camera extends Entity {
   }
 
   rotate(h: number, v: number) {
-    this.object.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), h);
-    this.inner.rotateOnAxis(new THREE.Vector3(1, 0, 0), v);
-    this.inner.rotation.x = clamp(this.inner.rotation.x, -1, -0.3);
+    this.object.rotateOnWorldAxis(new THREE.Vector3(0, 0, -1), h);
+    this.inner.rotateOnAxis(new THREE.Vector3(-1, 0, 0), v);
+    this.inner.rotation.x = clamp(this.inner.rotation.x, -0.6, 0);
   }
 
-  moveTo(position: THREE.Vector3) {
-    this.camera.position.copy(position.addScalar(30));
-    this.camera.lookAt(position);
+  move(position: THREE.Vector3) {
+    this.camera.position.add(position);
   }
 
   update(dt: number) {

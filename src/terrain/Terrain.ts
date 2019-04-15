@@ -2,39 +2,63 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon';
 import SimplexNoise from 'fast-simplex-noise';
 import { SURFACE_MATERIAL } from '../materials';
+import { Entity } from '../framework';
 
 const TERRAIN_MATERIAL = new THREE.MeshLambertMaterial({
-  color: 0xFFDDDD
+  color: 0xddffdd
 });
+
+class Cell extends Entity {
+  constructor(x: number, y: number, baseHeight: number) {
+    super();
+  }
+}
+
+class Grid extends Entity {
+  constructor(width: number, height: number) {
+    super();
+    const noise = new SimplexNoise({
+      frequency: 0.0025,
+      min: 0,
+      max: 1,
+      octaves: 2
+    });
+
+    const heightmap = [];
+    for(let y = 0; y < height; y++) {
+      for(let x = 0; x < width; x++) {
+        heightmap.push(noise.scaled2D(x, y));
+      }
+    }
+  }
+}
 
 export default () => {
   const heightmap = new SimplexNoise({
-    frequency: 0.01,
+    frequency: 0.0025,
     min: 0,
-    max: 15,
-    octaves: 8
+    max: 1,
+    octaves: 2
   });
 
-  const generate = (x1: number, z1: number, x2: number, z2: number) => {
-    const width = x2 - x1;
-    const depth = z2 - z1;
+  const generate = (width: number, depth: number) => {
     if(width < 1 || depth < 1) {
       throw new Error('invalid coord space');
     }
 
     const terrain = new THREE.Geometry();
     const heights = [];
-    for(let z = 0; z <= depth; z++) {
+    for(let x = 0; x <= width; x++) {
       const row = [];
-      for(let x = 0; x <= width; x++) {
-        const height = heightmap.scaled2D(x1 + x, z1 + z);
+      for(let y = 0; y <= depth; y++) {
+        const height = 1;
         row.push(height);
-        terrain.vertices.push(new THREE.Vector3(x1 + x, height, z1 + z));
-        if(x > 0 && z > 0) {
-          const a = (x - 1) + ((z - 1) * (width + 1));
-          const b = x + ((z - 1) * (width + 1));
-          const c = (x - 1) + (z * (width + 1));
-          const d = x + (z * (width + 1));
+        terrain.vertices.push(new THREE.Vector3(x, y, height));
+        if(x > 0 && y > 0) {
+          const a = (x - 1) + ((y - 1) * (width + 1));
+          const b = x + ((y - 1) * (width + 1));
+          const c = (x - 1) + (y * (width + 1));
+          const d = x + (y * (width + 1));
           const faceA = new THREE.Face3(d, b, a);
           const faceB = new THREE.Face3(a, c, d);
           terrain.faces.push(faceA, faceB);
@@ -55,16 +79,14 @@ export default () => {
     const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x775555 }));
 
     const object = new THREE.Object3D();
-    object.add(mesh);
+    const object2 = new THREE.Object3D();
+    object2.add(mesh);
+    object.add(object2);
     object.add(line);
-
-    console.log(heights);
 
     const field = new CANNON.Heightfield(heights, { elementSize: 1 });
     const body = new CANNON.Body({ mass: 0, material: SURFACE_MATERIAL });
     body.addShape(field);
-    body.quaternion.setFromEuler(-Math.PI / 2, 0, -Math.PI / 2);
-    body.position.set(x1, -5, z1);
     return { object, body };
   };
 
