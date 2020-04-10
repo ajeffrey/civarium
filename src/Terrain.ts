@@ -1,34 +1,52 @@
 import * as THREE from 'three';
-import * as CANNON from 'cannon';
 import SimplexNoise from 'fast-simplex-noise';
-import { SURFACE_MATERIAL } from './materials';
+import Tile from './Tile';
+import Entity from './Entity';
 
 const TERRAIN_MATERIAL = new THREE.MeshLambertMaterial({
   color: 0xddffdd
 });
 
-export default () => {
-  const heightmap = new SimplexNoise({
-    frequency: 0.0025,
-    min: 0,
-    max: 1,
-    octaves: 2
-  });
+type Dictionary<T> = {[key: number]: T};
 
-  const generate = (width: number, depth: number) => {
+export default class Terrain {
+  private object: THREE.Object3D;
+  private heightmap: SimplexNoise;
+  private tiles: Dictionary<Dictionary<Tile>>;
+  public entities: Entity[];
+
+  constructor(parent: THREE.Object3D) {
+    this.heightmap = new SimplexNoise({
+      frequency: 0.05,
+      min: 0,
+      max: 5,
+      octaves: 2
+    });
+
+    this.tiles = {};
+    this.object = new THREE.Object3D();
+    this.entities = [];
+    parent.add(this.object);
+  }
+
+  generate(x1: number, y1: number, width: number, depth: number) {
     if(width < 1 || depth < 1) {
       throw new Error('invalid coord space');
     }
 
     const terrain = new THREE.Geometry();
-    const heights = [];
+    
     for(let x = 0; x <= width; x++) {
-      const row = [];
       for(let y = 0; y <= depth; y++) {
-        const height = 1;
-        row.push(height);
-        terrain.vertices.push(new THREE.Vector3(x, y, height));
+        const xOffs = x + x1;
+        const yOffs = y + y1;
+        const height = this.heightmap.scaled2D(xOffs, yOffs);
+        terrain.vertices.push(new THREE.Vector3(xOffs, yOffs, height));
         if(x > 0 && y > 0) {
+          const tile = new Tile(xOffs, yOffs);
+          this.tiles[xOffs] = this.tiles[xOffs] || {};
+          this.tiles[xOffs][yOffs] = tile;
+
           const a = (x - 1) + ((y - 1) * (width + 1));
           const b = x + ((y - 1) * (width + 1));
           const c = (x - 1) + (y * (width + 1));
@@ -38,8 +56,6 @@ export default () => {
           terrain.faces.push(faceA, faceB);
         }
       }
-
-      heights.push(row);
     }
 
     terrain.computeVertexNormals(true);
@@ -53,16 +69,20 @@ export default () => {
     const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x775555 }));
 
     const object = new THREE.Object3D();
-    const object2 = new THREE.Object3D();
-    object2.add(mesh);
-    object.add(object2);
+    object.add(mesh);
     object.add(line);
+    this.object.add(object);
+  }
 
-    const field = new CANNON.Heightfield(heights, { elementSize: 1 });
-    const body = new CANNON.Body({ mass: 0, material: SURFACE_MATERIAL });
-    body.addShape(field);
-    return { object, body };
-  };
+  getPosition(coords: THREE.Vector2) {
+    return new THREE.Vector3(coords.x, coords.y, this.heightmap.scaled2D(coords.x, coords.y));
+  }
 
-  return { generate };
+  addEntity(entity: Entity) {
+    const object = new THREE.Object3D();
+    object.position.copy(this.getPosition(entity.coords));
+    this.entities.push(entity);
+    object.add(entity.object);
+    this.object.add(object);
+  }
 }

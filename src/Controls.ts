@@ -1,12 +1,12 @@
 import * as THREE from 'three';
-import Camera from "../Camera";
+import Camera from "./Camera";
 
 const ARROW_LEFT = 37;
 const ARROW_UP = 38;
 const ARROW_RIGHT = 39;
 const ARROW_DOWN = 40;
 
-export class Controls {
+export default class Controls {
   public speed = 10;
   private keys: {};
   private isDragging: boolean;
@@ -26,8 +26,8 @@ export class Controls {
     });
 
     window.addEventListener('mousewheel', (e: MouseWheelEvent) => {
-      this.camera.zoomBy(-e.deltaY / 500);
-    });
+      this.camera.zoomBy(-e.deltaY / 50);
+    }, { passive: true });
 
     window.addEventListener('mouseup', () => {
       this.isDragging = false;
@@ -37,7 +37,7 @@ export class Controls {
       if(this.isDragging) {
         const x = e.clientX - this.dragPos.x;
         const y = e.clientY - this.dragPos.y;
-        this.camera.rotate(-x / 10, -y / 10);
+        this.camera.rotate(-x / 50, 0);
         this.dragPos.x = e.clientX;
         this.dragPos.y = e.clientY;
       }

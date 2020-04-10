@@ -28,6 +28,6 @@ export default class Sun {
 
   setTime(dayRatio: number) {
     this.root.rotation.y = Math.PI / 2 - (dayRatio * Math.PI * 2);
-    this.ambientLight.intensity = (0.25 * Math.sin(dayRatio * Math.PI));
+    this.ambientLight.intensity = 0.5 + (0.25 * Math.sin(dayRatio * Math.PI));
   }
 };
