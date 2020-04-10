@@ -27,7 +27,7 @@ export default class Camera {
   public root: THREE.Object3D;
   private inner: THREE.Object3D;
 
-  constructor(zoom: number) {
+  constructor(scene: THREE.Scene, zoom: number) {
     this.zoom = zoom;
     const { left, right, top, bottom } = calculateViewport(zoom);
     const camera = this.camera = new THREE.OrthographicCamera(left, right, top, bottom, -10, 2000);
@@ -39,6 +39,7 @@ export default class Camera {
     inner.add(camera);
     camera.position.set(1000, 1000, 1000);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
+    scene.add(root);
   }
 
   zoomBy(zoom: number) {

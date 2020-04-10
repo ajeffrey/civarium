@@ -1,19 +1,19 @@
-const DAY_LENGTH = 24 * 60;
-const MINUTES_PER_SECOND = 15;
-
-const time = (time: string) => {
-  const [hours, minutes] = time.split(':');
-  return parseInt(hours, 10) * 60 + parseInt(minutes, 10);
-};
-
 export default class Clock {
-  public time: number;
+  private el: HTMLElement;
 
-  constructor() {
-    this.time = time('12:00');
+  constructor(parent: HTMLElement) {
+    const label = this.el = document.createElement('span');
+    label.style.position = 'absolute';
+    label.style.background = 'red';
+    label.style.color = 'white';
+    label.style.left = '0';
+    label.style.top = '0';
+    label.style.fontFamily = 'Arial';
+    label.style.padding = '2px 4px';
+    parent.appendChild(label);
   }
 
-  step(dt: number) {
-    this.time = (this.time + (dt * MINUTES_PER_SECOND)) % DAY_LENGTH;
+  setTime(clockTime: number) {
+    this.el.textContent = `Time: ${Math.floor(clockTime / 60)}:${Math.floor(clockTime % 60)}`;
   }
 }
