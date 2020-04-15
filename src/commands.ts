@@ -2,47 +2,56 @@ import Human from './Human';
 import nearestFoodSource from './queries/nearestFoodSource';
 import { IFoodSource, IFood } from './IFoodSource';
 
-export type ICommandStep = (dt: number) => ICommandStep;
-type INext<T = null> = (val: T) => ICommandStep;
+export interface ICommand {
+  name: string;
+  step(dt: number): ICommand;
+}
+
+type INext<T = null> = (val: T) => ICommand;
 
 function seq<IN, A, OUT>(
-  fa: (input: IN) => (next: INext<A>) => ICommandStep,
-  fb: (input: A) => (next: INext<OUT>) => ICommandStep,
-  fc: (input: OUT) => ICommandStep
+  fa: (input: IN) => (next: INext<A>) => ICommand,
+  fb: (input: A) => (next: INext<OUT>) => ICommand,
+  fc: (input: OUT) => ICommand
 ) {
-  return (input: IN) => {
+  return (input: IN): ICommand => {
     return fa(input)(a => fb(a)(b => fc(b)));
   }
 }
 
-export const die = (human: Human) => (next: INext): ICommandStep => {
+export const die = (human: Human) => (next: INext): ICommand => {
   let timer = 0;
-  return function step(dt: number) {
-    timer += dt;
-    human.object.rotateX(dt * Math.PI / 2);
-    if(timer >= 1) {
-      console.log('death complete');
-      return next(null);
 
-    } else {
-      return step;
-    }
-  }
-};
+  return {
+    name: 'dying',
+    step(dt: number) {
+      timer += dt;
+      human.object.rotateX(dt * Math.PI / 2);
+      if(timer >= 1) {
+        return next(null);
 
-export const idle = (human: Human): ICommandStep => {
-  return function step(dt: number) {
-    console.log('idle!');
-    if(human.hunger <= 50) {
-      return findFood(human)(() => step);
-
-    } else {
-      return step;
+      } else {
+        return this;
+      }
     }
   };
 };
 
-export const interrupt = (human: Human) => (next: INext): ICommandStep => {
+export const idle = (human: Human): ICommand => {
+  return {
+    name: 'idling',
+    step(dt: number) {
+      if(human.hunger <= 50) {
+        return findFood(human)(() => this);
+
+      } else {
+        return this;
+      }
+    }
+  };
+};
+
+export const interrupt = (human: Human) => (next: INext): ICommand => {
   if(human.hunger <= 0) {
     return die(human)(next);
   }
@@ -50,56 +59,61 @@ export const interrupt = (human: Human) => (next: INext): ICommandStep => {
   return next(null);
 };
 
-export const findFood = (human: Human) => (next: INext): ICommandStep => {
-  console.log('find food');
+export const findFood = (human: Human) => (next: INext): ICommand => {
   const viableFoodSources = human.terrain.entities.filter(e => e.tags.indexOf('FOOD_SOURCE') >= 0);
   const nearestFood = nearestFoodSource(human.coords, viableFoodSources);
 
   if(nearestFood) {
-    return seq(
+    const s = seq(
       () => moveToCoords(human, nearestFood.coords),
       () => harvestFood(nearestFood as IFoodSource),
       food => food ? eatFood(human, food)(next) : next(null)
     );
+
+    return s(null);
 
   } else {
     return next(null);
   }
 }
 
-export const moveToCoords = (human: Human, destination: THREE.Vector2) => (next: INext): ICommandStep => {
+export const moveToCoords = (human: Human, destination: THREE.Vector2) => (next: INext): ICommand => {
   const unit = destination.clone().sub(human.coords).normalize();
 
-  return function step(dt: number) {
-    console.log('move to coords');
-    if(human.coords.distanceTo(destination) > 0.1) {
-      const position = human.coords.clone().add(unit.clone().multiplyScalar(dt * human.speed));
-      console.log('move to', position.x, position.y);
-      human.moveTo(position);
-      return step;
+  return {
+    name: 'moving',
+    step(dt: number) {
+      if(human.coords.distanceTo(destination) > 0.1) {
+        const position = human.coords.clone().add(unit.clone().multiplyScalar(dt * human.speed));
+        human.moveTo(position);
+        return this;
 
-    } else {
-      return next(null);
+      } else {
+        return next(null);
+      }
     }
-  }
+  };
 }
 
-export const harvestFood = (foodSource: IFoodSource) => (next: INext<IFood | null>): ICommandStep => {
+export const harvestFood = (foodSource: IFoodSource) => (next: INext<IFood | null>): ICommand => {
   let timer = 0;
 
-  return function step(dt: number) {
-    timer += dt;
-    if(timer >= 1) {
-      const food = foodSource.takeFood();
-      return next(food);
+  return {
+    name: 'harvestingFood',
+    step(dt: number) {
+      timer += dt;
+      if(timer >= 1) {
+        const food = foodSource.takeFood();
+        return next(food);
 
-    } else {
-      return step;
+      } else {
+        return this;
+      }
     }
-  }
+  };
 }
 
-export const eatFood = (human: Human, food: IFood) => (next: INext): ICommandStep => {
+export const eatFood = (human: Human, food: IFood) => (next: INext): ICommand => {
   human.hunger += food.fillHunger;
   return next(null);
 };  
