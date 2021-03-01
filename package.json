@@ -15,7 +15,7 @@
     "noisejs": "^2.1.0",
     "rxjs": "^6.3.2",
     "shortid": "^2.2.13",
-    "three": "^0.114.0",
+    "three": "^0.125.0",
     "ts-loader": "^5.0.0",
     "typescript": "^3.0.3",
     "webpack": "^4.17.2",
