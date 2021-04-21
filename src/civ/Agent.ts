@@ -1,8 +1,8 @@
 import Human from './Civ';
-import { ICommandStep, idle, interrupt } from '../commands';
+import { ICommand, idle, interrupt } from '../commands';
 
 export default class Agent {
-  private command: ICommandStep;
+  private command: ICommand;
 
   constructor(private human: Human) {
     this.command = idle(human);
@@ -12,6 +12,6 @@ export default class Agent {
     this.human.hunger -= dt * 5;
     this.human.step();
 
-    this.command = interrupt(this.human)(() => this.command(dt));
+    this.command = interrupt(this.human)(() => this.command.step(dt));
   }
 }
