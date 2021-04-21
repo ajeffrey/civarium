@@ -1,4 +1,4 @@
-import Human from './Human';
+import Human from './civ/Civ';
 import nearestFoodSource from './queries/nearestFoodSource';
 import { IFoodSource, IFood } from './IFoodSource';
 

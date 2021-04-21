@@ -10,12 +10,12 @@ const TERRAIN_MATERIAL = new THREE.MeshLambertMaterial({
 type Dictionary<T> = {[key: number]: T};
 
 export default class Terrain {
-  private object: THREE.Object3D;
+  public object: THREE.Object3D;
   private heightmap: SimplexNoise;
   private tiles: Dictionary<Dictionary<Tile>>;
   public entities: Entity[];
 
-  constructor(parent: THREE.Object3D) {
+  constructor() {
     this.heightmap = new SimplexNoise({
       frequency: 0.05,
       min: 0,
@@ -26,7 +26,6 @@ export default class Terrain {
     this.tiles = {};
     this.object = new THREE.Object3D();
     this.entities = [];
-    parent.add(this.object);
   }
 
   generate(x1: number, y1: number, width: number, depth: number) {
@@ -40,7 +39,7 @@ export default class Terrain {
       for(let y = 0; y <= depth; y++) {
         const xOffs = x + x1;
         const yOffs = y + y1;
-        const height = this.heightmap.scaled2D(xOffs, yOffs);
+        const height = this.heightmap.scaled2D(xOffs, yOffs) % 0.5;
         terrain.vertices.push(new THREE.Vector3(xOffs, yOffs, height));
         if(x > 0 && y > 0) {
           const tile = new Tile(xOffs, yOffs);
@@ -75,7 +74,7 @@ export default class Terrain {
   }
 
   getPosition(coords: THREE.Vector2) {
-    return new THREE.Vector3(coords.x, coords.y, this.heightmap.scaled2D(coords.x, coords.y));
+    return new THREE.Vector3(coords.x, coords.y, this.heightmap.scaled2D(coords.x, coords.y) % 0.5);
   }
 
   addEntity(entity: Entity) {

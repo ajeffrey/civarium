@@ -1,13 +1,10 @@
-import * as THREE from 'three';
-import Human from './Human';
-import { ICommandStep, idle, interrupt } from './commands';
+import Human from './Civ';
+import { ICommandStep, idle, interrupt } from '../commands';
 
 export default class Agent {
-  private isDying: boolean;
   private command: ICommandStep;
 
   constructor(private human: Human) {
-    this.isDying = false;
     this.command = idle(human);
   }
 

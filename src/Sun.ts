@@ -2,13 +2,13 @@ import * as THREE from 'three';
 
 export default class Sun {
   private ambientLight: THREE.AmbientLight;
-  public root: THREE.Object3D;
+  public object: THREE.Object3D;
 
   constructor() {
     const ambientLight = this.ambientLight = new THREE.AmbientLight(0x010101 * 100);
     ambientLight.name = 'Ambient Light';
     
-    const sun = this.root = new THREE.Object3D();
+    const sun = this.object = new THREE.Object3D();
     sun.name = 'Sun';
     
     const sunLight = new THREE.DirectionalLight(0xffffff, 0.25);
@@ -27,7 +27,7 @@ export default class Sun {
   }
 
   setTime(dayRatio: number) {
-    this.root.rotation.y = Math.PI / 2 - (dayRatio * Math.PI * 2);
+    this.object.rotation.y = Math.PI / 2 - (dayRatio * Math.PI * 2);
     this.ambientLight.intensity = 0.5 + (0.25 * Math.sin(dayRatio * Math.PI));
   }
 };

@@ -1,18 +1,25 @@
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import Entity from '../Entity';
 import { IFoodSource } from '../IFoodSource';
 
-export class TreeFactory {
-  constructor(private model: THREE.Object3D) {
+export function loadTree() {
+  return new Promise<(coords: THREE.Vector2) => Tree>(resolve => {
+    const loader = new GLTFLoader();
+    loader.load('/models/tree.gltf', ({ scene: treeModel }) => {
+      treeModel.rotateX(90);
+      treeModel.scale.set(0.25, 0.25, 0.25);
+      treeModel.castShadow = true;
+      treeModel.receiveShadow = true;
 
-  }
-
-  create(coords: THREE.Vector2) {
-    return new Tree(coords, this.model);
-  }
+      resolve((coords: THREE.Vector2) => {
+        return new Tree(coords, treeModel);
+      });
+    });
+  })
 }
 
-export default class Tree extends Entity implements IFoodSource {
+class Tree extends Entity implements IFoodSource {
   private appleCount: number;
 
   constructor(coords: THREE.Vector2, model: THREE.Object3D) {

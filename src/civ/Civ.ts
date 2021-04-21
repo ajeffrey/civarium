@@ -1,30 +1,31 @@
 import * as THREE from 'three';
-import Bar from './Bar';
-import Terrain from './Terrain';
+import Bar from '../ui/Bar';
+import Terrain from '../Terrain';
 
 export default class Human {
   public hunger: number;
   public speed: number = 5;
   public object: THREE.Object3D;
   private bar: Bar;
+  private isDying: boolean;
 
-  constructor(parent: THREE.Object3D, readonly terrain: Terrain, public coords: THREE.Vector2) {
+  constructor(readonly terrain: Terrain, public coords: THREE.Vector2) {
     this.hunger = 100;
+    this.isDying = false;
     
     this.object = new THREE.Object3D();
     this.object.position.copy(terrain.getPosition(coords));
-    parent.add(this.object);
 
-    const human = new THREE.Mesh(
+    const model = new THREE.Mesh(
       new THREE.BoxGeometry(0.5, 0.5, 2.5),
       new THREE.MeshStandardMaterial({ color: 0xff0000 }),
     );
 
-    human.position.set(0, 0, 1.25);
-    human.name = 'Player';
-    human.castShadow = true;
-    human.receiveShadow = true;
-    this.object.add(human);
+    model.position.set(0, 0, 1.25);
+    model.name = 'Player';
+    model.castShadow = true;
+    model.receiveShadow = true;
+    this.object.add(model);
 
     this.bar = new Bar(100, this.object);
   }

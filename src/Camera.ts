@@ -24,22 +24,21 @@ const calculateViewport = (zoom: number): ICameraViewport => {
 export default class Camera {
   private zoom: number;
   public camera: THREE.OrthographicCamera;
-  public root: THREE.Object3D;
+  public object: THREE.Object3D;
   private inner: THREE.Object3D;
 
-  constructor(scene: THREE.Scene, zoom: number) {
+  constructor(zoom: number) {
     this.zoom = zoom;
     const { left, right, top, bottom } = calculateViewport(zoom);
     const camera = this.camera = new THREE.OrthographicCamera(left, right, top, bottom, -10, 2000);
     camera.up = new THREE.Vector3(0, 0, 1);
-    const root = this.root = new THREE.Object3D();
+    const object = this.object = new THREE.Object3D();
     const inner = this.inner = new THREE.Object3D();
-    root.name = 'Camera Dolly';
-    root.add(inner);
+    object.name = 'Camera Dolly';
+    object.add(inner);
     inner.add(camera);
     camera.position.set(1000, 1000, 1000);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
-    scene.add(root);
   }
 
   zoomBy(zoom: number) {
@@ -53,7 +52,7 @@ export default class Camera {
   }
 
   rotate(h: number, v: number) {
-    this.root.rotateOnWorldAxis(new THREE.Vector3(0, 0, -1), h);
+    this.object.rotateOnWorldAxis(new THREE.Vector3(0, 0, -1), h);
     this.inner.rotateOnAxis(new THREE.Vector3(-1, 0, 0), v);
     this.inner.rotation.x = clamp(this.inner.rotation.x, -0.6, 0);
   }
@@ -63,6 +62,6 @@ export default class Camera {
   }
 
   update(dt: number) {
-    this.root.position.add(new THREE.Vector3())
+    this.object.position.add(new THREE.Vector3())
   }
 };
