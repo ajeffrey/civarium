@@ -7,11 +7,9 @@ export default class Human {
   public speed: number = 5;
   public object: THREE.Object3D;
   private bar: Bar;
-  private isDying: boolean;
 
   constructor(readonly terrain: Terrain, public coords: THREE.Vector2) {
     this.hunger = 100;
-    this.isDying = false;
     
     this.object = new THREE.Object3D();
     this.object.position.copy(terrain.getPosition(coords));
