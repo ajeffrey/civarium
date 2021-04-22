@@ -1,18 +1,22 @@
 import * as THREE from 'three';
-import Bar from '../ui/Bar';
 import Terrain from '../Terrain';
+import Stats from './Stats';
 
 export default class Human {
   public hunger: number;
+  public thirst: number;
   public speed: number = 5;
   public object: THREE.Object3D;
-  private bar: Bar;
+  private stats: Stats;
 
   constructor(readonly terrain: Terrain, public coords: THREE.Vector2) {
     this.hunger = 100;
+    this.thirst = 100;
+    this.stats = new Stats(this.getStats());
     
     this.object = new THREE.Object3D();
     this.object.position.copy(terrain.getPosition(coords));
+    this.object.add(this.stats.object);
 
     const model = new THREE.Mesh(
       new THREE.BoxGeometry(0.5, 0.5, 2.5),
@@ -24,8 +28,10 @@ export default class Human {
     model.castShadow = true;
     model.receiveShadow = true;
     this.object.add(model);
+  }
 
-    this.bar = new Bar(100, this.object);
+  private getStats() {
+    return [this.hunger, this.thirst];
   }
 
   moveTo(coords: THREE.Vector2) {
@@ -33,7 +39,9 @@ export default class Human {
     this.object.position.copy(this.terrain.getPosition(coords));
   }
 
-  step() {
-    this.bar.update(this.hunger);
+  step(dt: number) {
+    this.hunger -= dt * 5;
+    this.thirst -= dt * 5;
+    this.stats.update(this.getStats());
   }
 }

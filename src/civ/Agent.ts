@@ -9,8 +9,7 @@ export default class Agent {
   }
 
   step(dt: number) {
-    this.human.hunger -= dt * 5;
-    this.human.step();
+    this.human.step(dt);
 
     this.command = interrupt(this.human)(() => this.command.step(dt));
   }
