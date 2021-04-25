@@ -9,8 +9,12 @@ export function loadTree() {
     loader.load('/models/tree.gltf', ({ scene: treeModel }) => {
       treeModel.rotateX(90);
       treeModel.scale.set(0.25, 0.25, 0.25);
-      treeModel.castShadow = true;
-      treeModel.receiveShadow = true;
+      treeModel.traverse(child => {
+        if(child instanceof THREE.Mesh) {
+          child.castShadow = true;
+          child.receiveShadow = true;
+        }
+      })
 
       resolve((coords: THREE.Vector2) => {
         return new Tree(coords, treeModel);
