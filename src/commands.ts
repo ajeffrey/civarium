@@ -1,10 +1,13 @@
 import Human from './civ/Civ';
-import nearestFoodSource from './queries/nearestFoodSource';
-import { IFoodSource, IFood } from './IFoodSource';
+import { FoodSource, Food } from './components/FoodSource';
+import Location from './components/Location';
+import EntityManager from './EntityManager';
+import nearestLocation from './queries/nearestLocation';
+import Time from './Time';
 
 export interface ICommand {
   name: string;
-  step(dt: number): ICommand;
+  step(): ICommand;
 }
 
 type INext<T = null> = (val: T) => ICommand;
@@ -24,9 +27,9 @@ export const die = (human: Human) => (next: INext): ICommand => {
 
   return {
     name: 'dying',
-    step(dt: number) {
-      timer += dt;
-      human.object.rotateX(dt * Math.PI / 2);
+    step() {
+      timer += Time.deltaTime;
+      human.entity.transform.rotateX(Time.deltaTime * Math.PI / 2);
       if(timer >= 1) {
         return next(null);
 
@@ -40,7 +43,7 @@ export const die = (human: Human) => (next: INext): ICommand => {
 export const idle = (human: Human): ICommand => {
   return {
     name: 'idling',
-    step(dt: number) {
+    step() {
       if(human.hunger <= 50) {
         return findFood(human)(() => this);
 
@@ -51,7 +54,11 @@ export const idle = (human: Human): ICommand => {
   };
 };
 
-export const interrupt = (human: Human) => (next: INext): ICommand => {
+export const interrupt = (human: Human, command: ICommand) => (next: INext): ICommand => {
+  if(command.name == 'dying') {
+    return next(null);
+  }
+
   if(human.hunger <= 0) {
     return die(human)(next);
   }
@@ -60,13 +67,13 @@ export const interrupt = (human: Human) => (next: INext): ICommand => {
 };
 
 export const findFood = (human: Human) => (next: INext): ICommand => {
-  const viableFoodSources = human.terrain.entities.filter(e => e.tags.indexOf('FOOD_SOURCE') >= 0);
-  const nearestFood = nearestFoodSource(human.coords, viableFoodSources);
+  const viableFoodSources = EntityManager.entities.filter(e => e.hasComponent(FoodSource));
+  const nearestFood = nearestLocation(human.location.coords, viableFoodSources.map(e => e.getComponent(Location)));
 
   if(nearestFood) {
     const s = seq(
       () => moveToCoords(human, nearestFood.coords),
-      () => harvestFood(nearestFood as IFoodSource),
+      () => harvestFood(nearestFood.entity.getComponent(FoodSource)),
       food => food ? eatFood(human, food)(next) : next(null)
     );
 
@@ -78,14 +85,14 @@ export const findFood = (human: Human) => (next: INext): ICommand => {
 }
 
 export const moveToCoords = (human: Human, destination: THREE.Vector2) => (next: INext): ICommand => {
-  const unit = destination.clone().sub(human.coords).normalize();
+  const unit = destination.clone().sub(human.location.coords).normalize();
 
   return {
     name: 'moving',
-    step(dt: number) {
-      if(human.coords.distanceTo(destination) > 0.1) {
-        const position = human.coords.clone().add(unit.clone().multiplyScalar(dt * human.speed));
-        human.moveTo(position);
+    step() {
+      if(human.location.coords.distanceTo(destination) > 0.1) {
+        const position = human.location.coords.clone().add(unit.clone().multiplyScalar(Time.deltaTime * human.speed));
+        human.location.moveTo(position);
         return this;
 
       } else {
@@ -95,13 +102,13 @@ export const moveToCoords = (human: Human, destination: THREE.Vector2) => (next:
   };
 }
 
-export const harvestFood = (foodSource: IFoodSource) => (next: INext<IFood | null>): ICommand => {
+export const harvestFood = (foodSource: FoodSource) => (next: INext<Food | null>): ICommand => {
   let timer = 0;
 
   return {
     name: 'harvestingFood',
-    step(dt: number) {
-      timer += dt;
+    step() {
+      timer += Time.deltaTime;
       if(timer >= 1) {
         const food = foodSource.takeFood();
         return next(food);
@@ -113,7 +120,8 @@ export const harvestFood = (foodSource: IFoodSource) => (next: INext<IFood | nul
   };
 }
 
-export const eatFood = (human: Human, food: IFood) => (next: INext): ICommand => {
+export const eatFood = (human: Human, food: Food) => (next: INext): ICommand => {
   human.hunger += food.fillHunger;
   return next(null);
 };  
+

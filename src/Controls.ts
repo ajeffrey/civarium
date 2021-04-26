@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import Camera from "./Camera";
+import Camera from "./entities/Camera";
 
 const ARROW_LEFT = 37;
 const ARROW_UP = 38;

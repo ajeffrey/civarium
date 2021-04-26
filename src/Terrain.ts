@@ -1,21 +1,19 @@
 import * as THREE from 'three';
 import SimplexNoise from 'fast-simplex-noise';
 import Tile from './Tile';
-import Entity from './Entity';
+
+type Dictionary<T> = {[key: number]: T};
 
 const TERRAIN_MATERIAL = new THREE.MeshLambertMaterial({
   color: 0xddffdd
 });
 
-type Dictionary<T> = {[key: number]: T};
-
-export default class Terrain {
+class Terrain {
   public object: THREE.Object3D;
   private heightmap: SimplexNoise;
   private tiles: Dictionary<Dictionary<Tile>>;
-  public entities: Entity[];
 
-  constructor() {
+  attach(parent: THREE.Object3D) {
     this.heightmap = new SimplexNoise({
       frequency: 0.05,
       min: 0,
@@ -25,7 +23,7 @@ export default class Terrain {
 
     this.tiles = {};
     this.object = new THREE.Object3D();
-    this.entities = [];
+    parent.add(this.object);
   }
 
   generate(x1: number, y1: number, width: number, depth: number) {
@@ -76,12 +74,7 @@ export default class Terrain {
   getPosition(coords: THREE.Vector2) {
     return new THREE.Vector3(coords.x, coords.y, this.heightmap.scaled2D(coords.x, coords.y) % 0.5);
   }
-
-  addEntity(entity: Entity) {
-    const object = new THREE.Object3D();
-    object.position.copy(this.getPosition(entity.coords));
-    this.entities.push(entity);
-    object.add(entity.object);
-    this.object.add(object);
-  }
 }
+
+const terrain = new Terrain;
+export default terrain;

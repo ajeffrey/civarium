@@ -1,9 +1,52 @@
+import shortid = require('shortid');
 import * as THREE from 'three';
 
-export default abstract class Entity {
-  constructor(public coords: THREE.Vector2, public tags: string[], public object: THREE.Object3D) {
+export abstract class Component {
+  constructor(public entity: Entity) {}
 
+  update() {}
+}
+
+interface IComponentClass<A extends any[], C extends Component> {
+  new(entity: Entity,  ...args: A): C;
+}
+
+export class Entity {
+  readonly id: string;
+  readonly transform: THREE.Object3D;
+  readonly components: {[key: string]: Component};
+
+  constructor(parent: THREE.Object3D) {
+    this.id = shortid();
+    this.components = {};
+    this.transform = new THREE.Object3D();
+    parent.add(this.transform);
   }
 
-  abstract step(dt: number);
+  addComponent<A extends any[], C extends Component, T extends IComponentClass<A, C>>(klass: T, ...args: A): InstanceType<T> {
+    const component = new klass(this, ...args);
+    this.components[klass.name] = component;
+    return component as InstanceType<T>;
+  }
+
+  getComponent<T extends IComponentClass<any[], any>>(klass: T): InstanceType<T> {
+    const component = this.components[klass.name];
+    if(component) {
+      return component as InstanceType<T>;
+
+    } else {
+      throw new Error(`component "${name}" not found`);
+    }
+  }
+
+  hasComponent<T extends IComponentClass<any[], any>>(klass: T) {
+    return klass.name in this.components;
+  }
+
+  update() {
+    for(const key in this.components) {
+      this.components[key].update();
+    }
+  }
+
 }
