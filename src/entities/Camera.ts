@@ -46,7 +46,7 @@ export default class Camera extends Component {
   }
 
   zoomBy(zoom: number) {
-    this.zoom = clamp(this.zoom + zoom, 5, 20);
+    this.zoom = clamp(this.zoom + zoom, 2, 10);
     const { left, right, top, bottom } = calculateViewport(this.zoom);
     this.camera.left = left;
     this.camera.top = top;

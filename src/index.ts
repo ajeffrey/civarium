@@ -6,7 +6,6 @@ import Terrain from './Terrain';
 import Controls from './Controls';
 import Clock from './ui/Clock';
 import EntityManager from './EntityManager';
-import ModelManager from './ModelManager';
 import ModelLoader from './ModelLoader';
 import { Tree } from './entities/Tree';
 import Time from './Time';
@@ -30,10 +29,11 @@ scene.background = new THREE.Color(0xddddff);
 
 ModelLoader.loadCollada('tree', '/models/tree.dae');
 ModelLoader.loadCollada('human', '/models/human.dae');
+ModelLoader.loadCollada('human', '/models/human.dae');
 
 ModelLoader.onReady(() => {
   const cameraObj = EntityManager.create(scene, 'Camera');
-  const camera = cameraObj.addComponent(Camera, 10);
+  const camera = cameraObj.addComponent(Camera, 4);
   new Controls(camera);
   scene.add(camera.object);
 

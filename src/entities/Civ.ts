@@ -7,13 +7,11 @@ import { Model } from '../components/Model';
 import { State, StateMachine } from '../components/StateMachine';
 import { ICommand, idle, interrupt } from '../commands';
 
-class DyingState extends State {
-  name = 'dying';
+class IdleState extends State {
+  name = 'idle';
 
   enter(machine: StateMachine) {
-    console.log('dying');
-    const model = machine.entity.getComponent(Model);
-    console.log(model.model.animations);
+    console.log('idle');
   }
 }
 
@@ -22,6 +20,16 @@ class MovingState extends State {
 
   enter(machine: StateMachine) {
     console.log('moving');
+  }
+}
+
+class DyingState extends State {
+  name = 'dying';
+
+  enter(machine: StateMachine) {
+    console.log('dying');
+    const model = machine.entity.getComponent(Model);
+    console.log(model.model.animations);
   }
 }
 
@@ -42,11 +50,13 @@ export default class Human extends Component {
     this._stats = entity.addComponent(Stats, () => this.getStats());
     this.location = entity.addComponent(Location, coords);
     this._model = entity.addComponent(Model, 'human');
-    this._model.model.scale.setScalar(0.3);
+    const model = this._model.model;
+    model.scale.setScalar(0.3);
     this.state = entity.addComponent(StateMachine);
-    this.state.addState(new DyingState);
+    this.state.addState(new IdleState);
     this.state.addState(new MovingState);
-    this.state.setState('moving');
+    this.state.addState(new DyingState);
+    this.state.setState('idle');
     this.command = idle(this);
   }
 

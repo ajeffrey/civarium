@@ -15,7 +15,8 @@ export default class Sun extends Component {
     sun.name = 'Sun';
     
     const orb = new THREE.Mesh(new THREE.SphereGeometry(1), new THREE.MeshStandardMaterial({ color: 0xff0000 }));
-    const sunLight = new THREE.DirectionalLight(0xffffff, 0.25);
+    const sunLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    sunLight.position.y = 100;
     sunLight.target.position.set(0, 0, 0);
     sunLight.name = 'Sun Light';
     sunLight.castShadow = true;
@@ -25,10 +26,21 @@ export default class Sun extends Component {
     sunLight.shadow.camera.right = 50;
     sunLight.shadow.camera.top = 50;
     sunLight.shadow.camera.bottom = -50;
+    const moonLight = new THREE.DirectionalLight(0xffffff, 0.125);
+    moonLight.position.y = -100;
+    moonLight.target.position.set(0, 0, 0);
+    moonLight.name = 'Moon Light';
+    moonLight.castShadow = true;
+    moonLight.shadow.mapSize.width = 4096;
+    moonLight.shadow.mapSize.height = 4096;
+    moonLight.shadow.camera.left = -50;
+    moonLight.shadow.camera.right = 50;
+    moonLight.shadow.camera.top = 50;
+    moonLight.shadow.camera.bottom = -50;
     sun.add(sunLight);
+    sun.add(moonLight);
     sun.add(orb);
     sun.add(ambientLight);
-    sunLight.position.y = 100;
     orb.position.y = 100;
     entity.transform.add(sun);
   }

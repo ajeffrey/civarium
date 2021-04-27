@@ -42,6 +42,7 @@ export const die = (human: Human) => (next: INext): ICommand => {
 };
 
 export const idle = (human: Human): ICommand => {
+  human.state.setState('idle');
   return {
     name: 'idling',
     step() {
@@ -68,12 +69,12 @@ export const interrupt = (human: Human, command: ICommand) => (next: INext): ICo
 };
 
 export const findFood = (human: Human) => (next: INext): ICommand => {
-  const viableFoodSources = EntityManager.entities.filter(e => e.hasComponent(FoodSource));
+  const viableFoodSources = EntityManager.entities.filter(e => e.hasComponent(FoodSource) && e.getComponent(FoodSource).hasFood());
   const nearestFood = nearestLocation(human.location.coords, viableFoodSources.map(e => e.getComponent(Location)));
 
   if(nearestFood) {
     const s = seq(
-      () => moveToCoords(human, nearestFood.coords),
+      () => moveToCoords(human, nearestFood.coords, 2),
       () => harvestFood(nearestFood.entity.getComponent(FoodSource)),
       food => food ? eatFood(human, food)(next) : next(null)
     );
@@ -85,13 +86,14 @@ export const findFood = (human: Human) => (next: INext): ICommand => {
   }
 }
 
-export const moveToCoords = (human: Human, destination: THREE.Vector2) => (next: INext): ICommand => {
+export const moveToCoords = (human: Human, destination: THREE.Vector2, within = 0.1) => (next: INext): ICommand => {
   const unit = destination.clone().sub(human.location.coords).normalize();
+  human.state.setState('moving');
 
   return {
     name: 'moving',
     step() {
-      if(human.location.coords.distanceTo(destination) > 0.1) {
+      if(human.location.coords.distanceTo(destination) > within) {
         const position = human.location.coords.clone().add(unit.clone().multiplyScalar(Time.deltaTime * human.speed));
         human.location.moveTo(position);
         return this;
