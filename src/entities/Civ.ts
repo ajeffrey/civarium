@@ -2,10 +2,28 @@ import * as THREE from 'three';
 import { Component, Entity } from '../Entity';
 import Time from '../Time';
 import Location from '../components/Location';
-import Stats from './Stats';
+import Stats from '../components/Stats';
 import { Model } from '../components/Model';
+import { State, StateMachine } from '../components/StateMachine';
 import { ICommand, idle, interrupt } from '../commands';
-let lastCommand = null;
+
+class DyingState extends State {
+  name = 'dying';
+
+  enter(machine: StateMachine) {
+    console.log('dying');
+    const model = machine.entity.getComponent(Model);
+    console.log(model.model.animations);
+  }
+}
+
+class MovingState extends State {
+  name = 'moving';
+
+  enter(machine: StateMachine) {
+    console.log('moving');
+  }
+}
 
 export default class Human extends Component {
   private command: ICommand;
@@ -13,6 +31,7 @@ export default class Human extends Component {
   public thirst: number;
   public speed: number = 5;
   public location: Location;
+  public state: StateMachine;
   private _model: Model;
   private _stats: Stats;
 
@@ -23,6 +42,11 @@ export default class Human extends Component {
     this._stats = entity.addComponent(Stats, () => this.getStats());
     this.location = entity.addComponent(Location, coords);
     this._model = entity.addComponent(Model, 'human');
+    this._model.model.scale.setScalar(0.3);
+    this.state = entity.addComponent(StateMachine);
+    this.state.addState(new DyingState);
+    this.state.addState(new MovingState);
+    this.state.setState('moving');
     this.command = idle(this);
   }
 
@@ -33,10 +57,6 @@ export default class Human extends Component {
   update() {
     this.hunger -= Time.deltaTime * 5;
     this.thirst -= Time.deltaTime * 5;
-    console.log(this.hunger, this.thirst);
-    if(this.command.name !== lastCommand) {
-      console.log('do', this.command.name);
-    }
     this.command = interrupt(this, this.command)(() => this.command.step());
   }
 }

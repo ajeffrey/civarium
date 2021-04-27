@@ -2,7 +2,9 @@ import * as THREE from 'three';
 import * as Chroma from 'chroma-js';
 import { Component, Entity } from '../Entity';
 
-const gradient = Chroma.scale(['#bb0000', '#00bb00']).domain([0, 1]).mode('lch')
+const gradient = Chroma.scale(['#bb0000', '#00bb00']).domain([0, 1]).mode('lch');
+
+
 
 export default class Stats extends Component {
   public object: THREE.Object3D;
@@ -11,7 +13,7 @@ export default class Stats extends Component {
   constructor(entity: Entity, private _getValues: () => number[]) {
     super(entity);
     const object = this.object = new THREE.Object3D();
-    object.position.set(0, 0, 4.5);
+    object.position.set(0, 3.5, 0);
     object.name = 'Stats';
     entity.transform.add(object);
     
@@ -20,10 +22,10 @@ export default class Stats extends Component {
     const values = _getValues();
     for(let i = values.length - 1; i >= 0; i--) {
       const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ color: 0x00ff00, depthTest: false }));
-      sprite.position.set(0, 0, -position * 1);
+      sprite.position.set(0,  -position * 1, 0);
       object.add(sprite);
       this.sprites.push(sprite);
-      position += 1;
+      position += 0.5;
     }
   }
 
@@ -40,7 +42,7 @@ export default class Stats extends Component {
 
       } else {
         object.visible = true;
-        object.scale.set(ratio * 4, 0.5, 1);
+        object.scale.set(ratio * 2, 0.25, 1);
       }
     }
   }

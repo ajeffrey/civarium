@@ -31,14 +31,15 @@ class Terrain {
       throw new Error('invalid coord space');
     }
 
-    const terrain = new THREE.Geometry();
+    const vertices = [];
+    const indices = [];
     
     for(let x = 0; x <= width; x++) {
       for(let y = 0; y <= depth; y++) {
         const xOffs = x + x1;
         const yOffs = y + y1;
-        const height = this.heightmap.scaled2D(xOffs, yOffs) % 0.5;
-        terrain.vertices.push(new THREE.Vector3(xOffs, yOffs, height));
+        const height = this.getHeight(xOffs, yOffs);
+        vertices.push(xOffs, height, yOffs);
         if(x > 0 && y > 0) {
           const tile = new Tile(xOffs, yOffs);
           this.tiles[xOffs] = this.tiles[xOffs] || {};
@@ -48,22 +49,22 @@ class Terrain {
           const b = x + ((y - 1) * (width + 1));
           const c = (x - 1) + (y * (width + 1));
           const d = x + (y * (width + 1));
-          const faceA = new THREE.Face3(d, b, a);
-          const faceB = new THREE.Face3(a, c, d);
-          terrain.faces.push(faceA, faceB);
+          indices.push(a, b, d);
+          indices.push(d, c, a);
         }
       }
     }
 
-    terrain.computeVertexNormals(true);
-    terrain.computeFaceNormals();
-    terrain.computeBoundingBox();
+    const terrain = new THREE.BufferGeometry();
+    terrain.setIndex(indices);
+    terrain.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
+    terrain.computeVertexNormals();
     const mesh = new THREE.Mesh(terrain, TERRAIN_MATERIAL);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
 
     const edges = new THREE.EdgesGeometry(mesh.geometry, 0);
-    const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x775555 }));
+    const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0 }));
 
     const object = new THREE.Object3D();
     object.add(mesh);
@@ -71,8 +72,13 @@ class Terrain {
     this.object.add(object);
   }
 
+  getHeight(x: number, y: number) {
+    return this.heightmap.scaled2D(x, y);
+  }
+
   getPosition(coords: THREE.Vector2) {
-    return new THREE.Vector3(coords.x, coords.y, this.heightmap.scaled2D(coords.x, coords.y) % 0.5);
+    const height = this.getHeight(coords.x, coords.y);
+    return new THREE.Vector3(coords.x, height, coords.y);
   }
 }
 

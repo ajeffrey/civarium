@@ -1,21 +1,22 @@
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import Camera from './entities/Camera';
 import Sun from './Sun';
-import Human from './civ/Civ';
+import Human from './entities/Civ';
 import Terrain from './Terrain';
 import Controls from './Controls';
 import Clock from './ui/Clock';
 import EntityManager from './EntityManager';
 import ModelManager from './ModelManager';
+import ModelLoader from './ModelLoader';
 import { Tree } from './entities/Tree';
 import Time from './Time';
 
-const renderer = new THREE.WebGLRenderer({ alpha: true });
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
+renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -27,32 +28,11 @@ scene.background = new THREE.Color(0xddddff);
 (window as any).THREE = THREE;
 (window as any).scene = scene;
 
-ModelManager.add('human', (() => {
-  const model = new THREE.Mesh(
-    new THREE.BoxGeometry(0.5, 0.5, 2.5),
-    new THREE.MeshStandardMaterial({ color: 0xff0000 }),
-  );
+ModelLoader.loadCollada('tree', '/models/tree.dae');
+ModelLoader.loadCollada('human', '/models/human.dae');
 
-  model.position.set(0, 0, 1.25);
-  model.name = 'Player';
-  model.castShadow = true;
-  model.receiveShadow = true;
-  return model;
-})());
-
-const loader = new GLTFLoader();
-loader.load('/models/tree.gltf', ({ scene: treeModel }) => {
-  treeModel.rotateX(90);
-  treeModel.scale.set(0.25, 0.25, 0.25);
-  treeModel.traverse(child => {
-    if(child instanceof THREE.Mesh) {
-      child.castShadow = true;
-      child.receiveShadow = true;
-    }
-  });
-
-  ModelManager.add('tree', treeModel);
-  const cameraObj = EntityManager.create(scene);
+ModelLoader.onReady(() => {
+  const cameraObj = EntityManager.create(scene, 'Camera');
   const camera = cameraObj.addComponent(Camera, 10);
   new Controls(camera);
   scene.add(camera.object);
@@ -64,20 +44,20 @@ loader.load('/models/tree.gltf', ({ scene: treeModel }) => {
   Terrain.generate(-25, -25, 50, 50);
 
   // Entities
-  const sun = EntityManager.create(scene);
+  const sun = EntityManager.create(scene, 'Sun');
   sun.addComponent(Sun);
 
-  const tree1 = EntityManager.create(scene);
+  const tree1 = EntityManager.create(scene, 'Tree');
   tree1.addComponent(Tree, new THREE.Vector2(15, -10));
   
-  const tree2 = EntityManager.create(scene);
+  const tree2 = EntityManager.create(scene, 'Tree');
   tree2.addComponent(Tree, new THREE.Vector2(-10, 10));
 
-  const human = EntityManager.create(scene);
+  const human = EntityManager.create(scene, 'Human');
   human.addComponent(Human, new THREE.Vector2(0, 0));
 
   const axes = new THREE.AxesHelper(10);
-  axes.position.set(0, 0, 2);
+  axes.position.set(0, 2, 0);
   scene.add(axes);
 
   let prevTime = performance.now();

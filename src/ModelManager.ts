@@ -1,3 +1,5 @@
+import { SkeletonUtils } from "three/examples/jsm/utils/SkeletonUtils";
+
 type Dictionary<T> = {[key: string]: T};
 
 export default class ModelManager {
@@ -13,6 +15,6 @@ export default class ModelManager {
       throw new Error(`model ${name} not found`);
     }
 
-    return model.clone();
+    return SkeletonUtils.clone(model);
   }
 }

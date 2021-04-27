@@ -24,6 +24,5 @@ export class FoodSource extends Component {
     const food = this._food.pop();
     return food;
   }
-
-  update() {}
+  
 }

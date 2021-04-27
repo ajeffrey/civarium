@@ -1,4 +1,4 @@
-import Human from './civ/Civ';
+import Human from './entities/Civ';
 import { FoodSource, Food } from './components/FoodSource';
 import Location from './components/Location';
 import EntityManager from './EntityManager';
@@ -24,6 +24,7 @@ function seq<IN, A, OUT>(
 
 export const die = (human: Human) => (next: INext): ICommand => {
   let timer = 0;
+  human.state.setState('dying');
 
   return {
     name: 'dying',

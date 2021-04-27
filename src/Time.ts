@@ -1,4 +1,4 @@
-const MINUTES_PER_SECOND = 15;
+const MINUTES_PER_SECOND = 100;
 
 export default class Time {
   static readonly DAY_LENGTH = 24 * 60;

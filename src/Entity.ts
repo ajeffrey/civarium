@@ -13,13 +13,17 @@ interface IComponentClass<A extends any[], C extends Component> {
 
 export class Entity {
   readonly id: string;
+  readonly name: string;
   readonly transform: THREE.Object3D;
   readonly components: {[key: string]: Component};
 
-  constructor(parent: THREE.Object3D) {
+  constructor(parent: THREE.Object3D, name: string) {
     this.id = shortid();
+    this.name = name;
     this.components = {};
     this.transform = new THREE.Object3D();
+    this.transform.name = name;
+    this.transform.userData = { entity: this };
     parent.add(this.transform);
   }
 

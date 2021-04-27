@@ -16,8 +16,6 @@ export default class Location extends Component {
     this.coords = coords;
     const location = Terrain.getPosition(coords);
     this.entity.transform.position.copy(location);
+    this.entity.transform.updateMatrixWorld();
   }
-
-  update() {}
-
 }

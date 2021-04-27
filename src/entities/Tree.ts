@@ -13,6 +13,13 @@ export class Tree extends Component {
     }
 
     entity.addComponent(Model, 'tree');
+    const model = entity.transform.children[0];
+    model.traverse(child => {
+      if(child instanceof THREE.Mesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
     entity.addComponent(Located, coords);
     entity.addComponent(FoodSource, apples);
   }

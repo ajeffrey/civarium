@@ -3,8 +3,8 @@ import { Entity } from "./Entity";
 export default class EntityManager {
   public static entities: Entity[] = [];
 
-  static create(parent: THREE.Object3D) {
-    const entity = new Entity(parent);
+  static create(parent: THREE.Object3D, name: string) {
+    const entity = new Entity(parent, name);
     this.entities.push(entity);
     return entity;
   }

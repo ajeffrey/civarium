@@ -1,14 +1,18 @@
 import * as THREE from 'three';
 import Camera from "./entities/Camera";
+import { Entity } from './Entity';
+import EntityManager from './EntityManager';
+import Time from './Time';
 
-const ARROW_LEFT = 37;
-const ARROW_UP = 38;
-const ARROW_RIGHT = 39;
-const ARROW_DOWN = 40;
+const ARROW_LEFT = 'ArrowLeft';
+const ARROW_UP = 'ArrowUp';
+const ARROW_RIGHT = 'ArrowRight';
+const ARROW_DOWN = 'ArrowDown';
+const FOLLOW = 'F';
 
 export default class Controls {
   public speed = 10;
-  private keys: {};
+  private keys: {[key: string]: boolean};
   private isDragging: boolean;
   private dragPos: THREE.Vector2;
   private camera: Camera;
@@ -25,9 +29,39 @@ export default class Controls {
       this.dragPos.y = e.clientY;
     });
 
-    window.addEventListener('mousewheel', (e: MouseWheelEvent) => {
+    window.addEventListener('mousewheel', (e: WheelEvent) => {
       this.camera.zoomBy(-e.deltaY / 50);
     }, { passive: true });
+
+    window.addEventListener('click', (e: MouseEvent) => {
+      const mouse = new THREE.Vector3();
+      mouse.setX(2 * (e.clientX / window.innerWidth) - 1);
+      mouse.setY(1 - 2 * (e.clientY / window.innerHeight));
+
+      const caster = new THREE.Raycaster();
+      caster.setFromCamera(mouse, this.camera.camera);
+      const objects = EntityManager.entities.map(e => e.transform);
+      const intersections = caster.intersectObjects(objects, true);
+      let following: Entity | null = null;
+
+      for(const intersection of intersections) {
+        if(following) break;
+
+        let target = intersection.object;
+        while(target) {
+          const entity: Entity | undefined = target.userData?.entity;
+          if(entity) {
+            following = entity;
+            break;
+            
+          } else {
+            target = target.parent;
+          }
+        }
+      }
+
+      this.camera.follow(following);
+    });
 
     window.addEventListener('mouseup', () => {
       this.isDragging = false;
@@ -44,11 +78,11 @@ export default class Controls {
     });
 
     window.addEventListener('keydown', e => {
-      this.keys[e.keyCode] = true;
+      this.keys[e.key] = true;
     });
 
     window.addEventListener('keyup', e => {
-      this.keys[e.keyCode] = false;
+      this.keys[e.key] = false;
     });
   }
 
@@ -76,11 +110,11 @@ export default class Controls {
     }
   }
 
-  update(dt: number) {
+  update() {
     const x = this.xAxis();
     const y = this.yAxis();
     if(x || y) {
-      this.camera.move(new THREE.Vector3(x * dt * this.speed, 0, y * dt * this.speed));
+      this.camera.move(new THREE.Vector3(x * Time.deltaTime * this.speed, 0, y * Time.deltaTime * this.speed));
     }
   }
 }

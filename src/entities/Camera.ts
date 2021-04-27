@@ -26,6 +26,8 @@ export default class Camera extends Component {
   private zoom: number;
   public camera: THREE.OrthographicCamera;
   public object: THREE.Object3D;
+  private inner: THREE.Object3D;
+  public following: Entity | null;
 
   constructor(entity: Entity, zoom: number) {
     super(entity);
@@ -33,11 +35,13 @@ export default class Camera extends Component {
     this.zoom = zoom;
     const { left, right, top, bottom } = calculateViewport(zoom);
     const camera = this.camera = new THREE.OrthographicCamera(left, right, top, bottom, -10, 2000);
-    camera.up = new THREE.Vector3(0, 0, 1);
     camera.position.set(1000, 1000, 1000);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
+    
+    const inner = this.inner = new THREE.Object3D();
+    inner.add(camera);
     const object = this.object = new THREE.Object3D();
-    object.add(camera);
+    object.add(inner);
     entity.transform.add(object);
   }
 
@@ -50,11 +54,15 @@ export default class Camera extends Component {
     this.camera.bottom = bottom;
     this.camera.updateProjectionMatrix();
   }
+  
+  follow(object: Entity | null) {
+    this.following = object;
+  }
 
   rotate(h: number, v: number) {
-    this.entity.transform.rotateOnWorldAxis(new THREE.Vector3(0, 0, -1), h);
-    this.object.rotateOnAxis(new THREE.Vector3(-1, 0, 0), v);
-    this.object.rotation.x = clamp(this.object.rotation.x, -0.6, 0);
+    this.object.rotateOnWorldAxis(new THREE.Vector3(0, -1, 0), h);
+    this.inner.rotateOnAxis(new THREE.Vector3(-1, 0, 0), v);
+    this.inner.rotation.x = clamp(this.inner.rotation.x, -0.6, 0);
   }
 
   move(position: THREE.Vector3) {
@@ -62,6 +70,8 @@ export default class Camera extends Component {
   }
 
   update() {
-    this.entity.transform.position.add(new THREE.Vector3())
+    if(this.following) {
+      this.object.position.copy(this.following.transform.position);
+    }
   }
 };

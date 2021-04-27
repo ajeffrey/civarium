@@ -14,25 +14,28 @@ export default class Sun extends Component {
     const sun = this.object = new THREE.Object3D();
     sun.name = 'Sun';
     
+    const orb = new THREE.Mesh(new THREE.SphereGeometry(1), new THREE.MeshStandardMaterial({ color: 0xff0000 }));
     const sunLight = new THREE.DirectionalLight(0xffffff, 0.25);
     sunLight.target.position.set(0, 0, 0);
     sunLight.name = 'Sun Light';
     sunLight.castShadow = true;
-    sunLight.shadow.mapSize.width = 2048;
-    sunLight.shadow.mapSize.height = 2048;
+    sunLight.shadow.mapSize.width = 4096;
+    sunLight.shadow.mapSize.height = 4096;
     sunLight.shadow.camera.left = -50;
     sunLight.shadow.camera.right = 50;
     sunLight.shadow.camera.top = 50;
     sunLight.shadow.camera.bottom = -50;
     sun.add(sunLight);
+    sun.add(orb);
     sun.add(ambientLight);
-    sunLight.position.x = 20;
+    sunLight.position.y = 100;
+    orb.position.y = 100;
     entity.transform.add(sun);
   }
 
   update() {
     const dayRatio = Time.wallTime / Time.DAY_LENGTH;
-    this.object.rotation.y = Math.PI / 2 - (dayRatio * Math.PI * 2);
-    this.ambientLight.intensity = 0.5 + (0.25 * Math.sin(dayRatio * Math.PI));
+    this.object.rotation.z = (dayRatio * Math.PI * 2) + Math.PI;
+    this.ambientLight.intensity = 0.5 + (0.5 * Math.sin(dayRatio * Math.PI));
   }
 };

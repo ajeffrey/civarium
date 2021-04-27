@@ -1,22 +1,43 @@
 import { Entity, Component } from "../Entity";
 
-export interface IState {
-  update(stateMachine: StateMachine)
+export class State {
+  name: string;
+  enter(machine: StateMachine) {}
+  update(machine: StateMachine) {}
+  exit(machine: StateMachine) {}
 }
 
 export class StateMachine extends Component {
-  public state: IState;
+  public state: State | null;
+  private _states: {[key: string]: State};
 
-  constructor(entity: Entity, initialState: IState) {
+  constructor(entity: Entity) {
     super(entity);
-    this.state = initialState;
+    this._states = {};
+    this.state = null;
   }
 
-  setState(state: IState) {
-    this.state = state;
+  addState(state: State) {
+    this._states[state.name] = state;
+  }
+
+  setState(name: string) {
+    const newState = this._states[name];
+    if(!newState) {
+      throw new Error(`state ${name} not found`);
+    }
+
+    if(this.state) {
+      this.state.exit(this);
+    }
+
+    this.state = this._states[name];
+    this.state.enter(this);
   }
 
   update() {
-    this.state.update(this);
+    if(this.state) {
+      this.state.update(this);
+    }
   }
 }
