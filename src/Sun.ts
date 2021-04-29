@@ -20,8 +20,11 @@ export default class Sun extends Component {
     sunLight.target.position.set(0, 0, 0);
     sunLight.name = 'Sun Light';
     sunLight.castShadow = true;
+    sunLight.shadow.bias = -0.001;
     sunLight.shadow.mapSize.width = 4096;
     sunLight.shadow.mapSize.height = 4096;
+    sunLight.shadow.camera.near = 1;
+    sunLight.shadow.camera.far = 500;
     sunLight.shadow.camera.left = -50;
     sunLight.shadow.camera.right = 50;
     sunLight.shadow.camera.top = 50;
@@ -31,8 +34,11 @@ export default class Sun extends Component {
     moonLight.target.position.set(0, 0, 0);
     moonLight.name = 'Moon Light';
     moonLight.castShadow = true;
+    moonLight.shadow.bias = -0.001;
     moonLight.shadow.mapSize.width = 4096;
     moonLight.shadow.mapSize.height = 4096;
+    moonLight.shadow.camera.near = 1;
+    moonLight.shadow.camera.far = 500;
     moonLight.shadow.camera.left = -50;
     moonLight.shadow.camera.right = 50;
     moonLight.shadow.camera.top = 50;
