@@ -5,7 +5,7 @@ import Location from '../components/Location';
 import Stats from '../components/Stats';
 import { Model } from '../components/Model';
 import { State, StateMachine } from '../components/StateMachine';
-import { ICommand, idle, interrupt } from '../commands';
+import { ICommand, idle } from '../commands';
 
 class IdleState extends State {
   name = 'idle';
@@ -29,7 +29,6 @@ class DyingState extends State {
   enter(machine: StateMachine) {
     console.log('dying');
     const model = machine.entity.getComponent(Model);
-    console.log(model.model.animations);
   }
 }
 
@@ -65,8 +64,16 @@ export default class Human extends Component {
   }
 
   update() {
-    this.hunger -= Time.deltaTime * 5;
-    this.thirst -= Time.deltaTime * 5;
-    this.command = interrupt(this, this.command)(() => this.command.step());
+    if(this.state.state.name !== 'dying') {
+      this.hunger -= Time.deltaTime * 5;
+      this.thirst -= Time.deltaTime * 5;
+
+      if(this.hunger <= 0 || this.thirst <= 0) {
+        this.state.setState('dying');
+
+      } else {
+        this.command.step();
+      }
+    }
   }
 }

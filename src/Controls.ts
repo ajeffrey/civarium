@@ -8,11 +8,10 @@ const ARROW_LEFT = 'ArrowLeft';
 const ARROW_UP = 'ArrowUp';
 const ARROW_RIGHT = 'ArrowRight';
 const ARROW_DOWN = 'ArrowDown';
-const FOLLOW = 'F';
 
 export default class Controls {
   public speed = 10;
-  private keys: {[key: string]: boolean};
+  public keys: {[key: string]: boolean};
   private isDragging: boolean;
   private dragPos: THREE.Vector2;
   private camera: Camera;
@@ -71,7 +70,7 @@ export default class Controls {
       if(this.isDragging) {
         const x = e.clientX - this.dragPos.x;
         const y = e.clientY - this.dragPos.y;
-        this.camera.rotate(-x / 50, 0);
+        this.camera.rotate(x / 50, y / 50);
         this.dragPos.x = e.clientX;
         this.dragPos.y = e.clientY;
       }

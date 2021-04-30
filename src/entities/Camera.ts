@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { Spherical } from 'three';
 import { Component, Entity } from '../Entity';
 
 interface ICameraViewport {
@@ -23,35 +24,29 @@ const calculateViewport = (zoom: number): ICameraViewport => {
 };
 
 export default class Camera extends Component {
-  private zoom: number;
   public camera: THREE.OrthographicCamera;
-  public object: THREE.Object3D;
-  private inner: THREE.Object3D;
+  public focus: THREE.Vector3;
+  private sphere: THREE.Spherical;
   public following: Entity | null;
 
-  constructor(entity: Entity, zoom: number) {
+  constructor(entity: Entity) {
     super(entity);
 
-    this.zoom = zoom;
-    const { left, right, top, bottom } = calculateViewport(zoom);
-    const camera = this.camera = new THREE.OrthographicCamera(left, right, top, bottom, -10, 2000);
-    camera.position.set(1000, 1000, 1000);
-    camera.lookAt(new THREE.Vector3(0, 0, 0));
-    
-    const inner = this.inner = new THREE.Object3D();
-    inner.add(camera);
-    const object = this.object = new THREE.Object3D();
-    object.add(inner);
-    entity.transform.add(object);
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const camera = this.camera = new THREE.OrthographicCamera(-width / 2, width / 2, height / 2, -height / 2, 1, 2000);
+    camera.zoom = 10;
+    camera.updateProjectionMatrix();
+
+    this.focus = new THREE.Vector3(0, 0, 0);
+    this.sphere = new Spherical(100, Math.PI / 4, Math.PI / 4);
+    this._updatePosition();
+
+    entity.transform.add(camera);
   }
 
   zoomBy(zoom: number) {
-    this.zoom = clamp(this.zoom + zoom, 2, 10);
-    const { left, right, top, bottom } = calculateViewport(this.zoom);
-    this.camera.left = left;
-    this.camera.top = top;
-    this.camera.right = right;
-    this.camera.bottom = bottom;
+    this.camera.zoom = clamp(this.camera.zoom + zoom, 1, 100);
     this.camera.updateProjectionMatrix();
   }
   
@@ -60,18 +55,26 @@ export default class Camera extends Component {
   }
 
   rotate(h: number, v: number) {
-    this.object.rotateOnWorldAxis(new THREE.Vector3(0, -1, 0), h);
-    this.inner.rotateOnAxis(new THREE.Vector3(-1, 0, 0), v);
-    this.inner.rotation.x = clamp(this.inner.rotation.x, -0.6, 0);
+    this.sphere.theta += h;
+    this.sphere.phi = clamp(this.sphere.phi + v, Math.PI * 2 / 8, Math.PI * 3 / 8);
+    this._updatePosition();
   }
 
   move(position: THREE.Vector3) {
-    this.camera.position.add(position);
+    this.focus.add(position);
+    this._updatePosition();
   }
 
   update() {
     if(this.following) {
-      this.object.position.copy(this.following.transform.position);
+      this.focus.copy(this.following.transform.position);
+      this._updatePosition();
     }
+  }
+
+  private _updatePosition() {
+    this.camera.position.setFromSpherical(this.sphere);
+    this.camera.position.add(this.focus);
+    this.camera.lookAt(this.focus);
   }
 };

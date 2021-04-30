@@ -22,25 +22,6 @@ function seq<IN, A, OUT>(
   }
 }
 
-export const die = (human: Human) => (next: INext): ICommand => {
-  let timer = 0;
-  human.state.setState('dying');
-
-  return {
-    name: 'dying',
-    step() {
-      timer += Time.deltaTime;
-      human.entity.transform.rotateX(Time.deltaTime * Math.PI / 2);
-      if(timer >= 1) {
-        return next(null);
-
-      } else {
-        return this;
-      }
-    }
-  };
-};
-
 export const idle = (human: Human): ICommand => {
   human.state.setState('idle');
   return {
@@ -54,18 +35,6 @@ export const idle = (human: Human): ICommand => {
       }
     }
   };
-};
-
-export const interrupt = (human: Human, command: ICommand) => (next: INext): ICommand => {
-  if(command.name == 'dying') {
-    return next(null);
-  }
-
-  if(human.hunger <= 0) {
-    return die(human)(next);
-  }
-
-  return next(null);
 };
 
 export const findFood = (human: Human) => (next: INext): ICommand => {
@@ -88,7 +57,7 @@ export const findFood = (human: Human) => (next: INext): ICommand => {
 
 export const moveToCoords = (human: Human, destination: THREE.Vector2, within = 0.1) => (next: INext): ICommand => {
   const unit = destination.clone().sub(human.location.coords).normalize();
-  human.state.setState('moving');
+  // human.state.setState('moving');
 
   return {
     name: 'moving',

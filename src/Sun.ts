@@ -5,54 +5,56 @@ import Time from './Time';
 export default class Sun extends Component {
   private ambientLight: THREE.AmbientLight;
   public object: THREE.Object3D;
+  private light: THREE.PointLight;
+  private isNight: boolean;
 
   constructor(entity: Entity) {
     super(entity);
-    const ambientLight = this.ambientLight = new THREE.AmbientLight(0x010101 * 100);
-    ambientLight.name = 'Ambient Light';
     
     const sun = this.object = new THREE.Object3D();
+    sun.position.y = -20;
     sun.name = 'Sun';
     
-    const orb = new THREE.Mesh(new THREE.SphereGeometry(1), new THREE.MeshStandardMaterial({ color: 0xff0000 }));
-    const sunLight = new THREE.DirectionalLight(0xffffff, 0.5);
-    sunLight.position.y = 100;
-    sunLight.target.position.set(0, 0, 0);
-    sunLight.name = 'Sun Light';
-    sunLight.castShadow = true;
-    sunLight.shadow.bias = -0.001;
-    sunLight.shadow.mapSize.width = 4096;
-    sunLight.shadow.mapSize.height = 4096;
-    sunLight.shadow.camera.near = 1;
-    sunLight.shadow.camera.far = 500;
-    sunLight.shadow.camera.left = -50;
-    sunLight.shadow.camera.right = 50;
-    sunLight.shadow.camera.top = 50;
-    sunLight.shadow.camera.bottom = -50;
-    const moonLight = new THREE.DirectionalLight(0xffffff, 0.125);
-    moonLight.position.y = -100;
-    moonLight.target.position.set(0, 0, 0);
-    moonLight.name = 'Moon Light';
-    moonLight.castShadow = true;
-    moonLight.shadow.bias = -0.001;
-    moonLight.shadow.mapSize.width = 4096;
-    moonLight.shadow.mapSize.height = 4096;
-    moonLight.shadow.camera.near = 1;
-    moonLight.shadow.camera.far = 500;
-    moonLight.shadow.camera.left = -50;
-    moonLight.shadow.camera.right = 50;
-    moonLight.shadow.camera.top = 50;
-    moonLight.shadow.camera.bottom = -50;
-    sun.add(sunLight);
-    sun.add(moonLight);
-    sun.add(orb);
+    const ambientLight = this.ambientLight = new THREE.AmbientLight(0x010101 * 100);
+    ambientLight.name = 'Ambient Light';
     sun.add(ambientLight);
-    orb.position.y = 100;
+
+    const light = this.light = new THREE.PointLight(0xffffff, 0.5);
+    light.position.y = 100;
+    // light.target.position.set(0, 0, 0);
+    light.name = 'Sun Light';
+    light.castShadow = true;
+    light.shadow.bias = -0.001;
+    light.shadow.mapSize.width = 4096;
+    light.shadow.mapSize.height = 4096;
+    light.shadow.camera.near = 1;
+    light.shadow.camera.far = 250;
+    // light.shadow.camera.left = -50;
+    // light.shadow.camera.right = 50;
+    // light.shadow.camera.top = 50;
+    // light.shadow.camera.bottom = -50;
+    // entity.transform.add(new THREE.CameraHelper(light.shadow.camera));
+    sun.add(light);
+
     entity.transform.add(sun);
   }
 
   update() {
-    const dayRatio = Time.wallTime / Time.DAY_LENGTH;
+    const dayRatio = Time.wallTime / Time.DAY_LENGTH; // midnight = 0, midday = 0.5
+    const phaseRatio = (dayRatio + 0.25) % 1; // sunrise = 0, sunset = 0.5
+
+    const isNight = (phaseRatio < 0.5);
+    if(isNight && !this.isNight) {
+      this.isNight = true;
+      this.light.intensity = 0.125;
+      this.light.position.y = -100;
+
+    } else if(!isNight && this.isNight) {
+      this.isNight = false;
+      this.light.intensity = 0.5;
+      this.light.position.y = 100;
+    }
+    
     this.object.rotation.z = (dayRatio * Math.PI * 2) + Math.PI;
     this.ambientLight.intensity = 0.5 + (0.5 * Math.sin(dayRatio * Math.PI));
   }

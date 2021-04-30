@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import Stats = require('stats.js');
 import Camera from './entities/Camera';
 import Sun from './Sun';
 import Human from './entities/Civ';
@@ -10,7 +11,11 @@ import ModelLoader from './ModelLoader';
 import { Tree } from './entities/Tree';
 import Time from './Time';
 
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+var stats = new Stats();
+stats.showPanel(0);
+document.body.appendChild(stats.dom);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
 window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
@@ -34,8 +39,7 @@ ModelLoader.loadCollada('human', '/models/human.dae');
 ModelLoader.onReady(() => {
   const cameraObj = EntityManager.create(scene, 'Camera');
   const camera = cameraObj.addComponent(Camera, 4);
-  new Controls(camera);
-  scene.add(camera.object);
+  const controls = new Controls(camera);
 
   Terrain.attach(scene);
   Clock.attach(document.body);
@@ -60,18 +64,27 @@ ModelLoader.onReady(() => {
   axes.position.set(0, 2, 0);
   scene.add(axes);
 
+  let running = true;
+
   let prevTime = performance.now();
-  const step = (t) => {
+  function step(t) {
+    stats.begin();
     const dt = (t - prevTime) / 1000;
     prevTime = t;
+
+    if(controls.keys[' ']) {
+      running = !running;
+    }
     
-    Time.update(dt);
-    Clock.update();
-    EntityManager.update();
+    if(running) {
+      controls.update();
+      Time.update(dt);
+      Clock.update();
+      EntityManager.update();
+    }
 
     renderer.render(scene, camera.camera);
-
-    // debug.update();
+    stats.end();
     requestAnimationFrame(step);
   }
 
