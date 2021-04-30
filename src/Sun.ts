@@ -5,7 +5,7 @@ import Time from './Time';
 export default class Sun extends Component {
   private ambientLight: THREE.AmbientLight;
   public object: THREE.Object3D;
-  private light: THREE.PointLight;
+  private light: THREE.DirectionalLight;
   private isNight: boolean;
 
   constructor(entity: Entity) {
@@ -19,9 +19,9 @@ export default class Sun extends Component {
     ambientLight.name = 'Ambient Light';
     sun.add(ambientLight);
 
-    const light = this.light = new THREE.PointLight(0xffffff, 0.5);
+    const light = this.light = new THREE.DirectionalLight(0xffffff, 0.5);
     light.position.y = 100;
-    // light.target.position.set(0, 0, 0);
+    light.target.position.set(0, 0, 0);
     light.name = 'Sun Light';
     light.castShadow = true;
     light.shadow.bias = -0.001;
@@ -29,10 +29,10 @@ export default class Sun extends Component {
     light.shadow.mapSize.height = 4096;
     light.shadow.camera.near = 1;
     light.shadow.camera.far = 250;
-    // light.shadow.camera.left = -50;
-    // light.shadow.camera.right = 50;
-    // light.shadow.camera.top = 50;
-    // light.shadow.camera.bottom = -50;
+    light.shadow.camera.left = -50;
+    light.shadow.camera.right = 50;
+    light.shadow.camera.top = 50;
+    light.shadow.camera.bottom = -50;
     // entity.transform.add(new THREE.CameraHelper(light.shadow.camera));
     sun.add(light);
 

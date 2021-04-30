@@ -36,7 +36,6 @@ export default class Clock {
     const hours = Math.floor(time / 60);
     const minutes = Math.floor(time % 60)
     const text = `Time: ${pad(hours)}:${pad(minutes)}`;
-    const context = this.el.getContext('2d');
     this.context.fillStyle = 'red';
     this.context.fillRect(0, 0, WIDTH, HEIGHT);
 

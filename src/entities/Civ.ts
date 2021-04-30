@@ -27,8 +27,16 @@ class DyingState extends State {
   name = 'dying';
 
   enter(machine: StateMachine) {
-    console.log('dying');
-    const model = machine.entity.getComponent(Model);
+  }
+}
+
+class HumanState extends StateMachine {
+  constructor(entity) {
+    super(entity);
+    this.addState(new IdleState);
+    this.addState(new MovingState);
+    this.addState(new DyingState);
+    this.setState('idle');
   }
 }
 
@@ -51,10 +59,7 @@ export default class Human extends Component {
     this._model = entity.addComponent(Model, 'human');
     const model = this._model.model;
     model.scale.setScalar(0.3);
-    this.state = entity.addComponent(StateMachine);
-    this.state.addState(new IdleState);
-    this.state.addState(new MovingState);
-    this.state.addState(new DyingState);
+    this.state = entity.addComponent(HumanState);
     this.state.setState('idle');
     this.command = idle(this);
   }

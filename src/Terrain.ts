@@ -8,19 +8,25 @@ const TERRAIN_MATERIAL = new THREE.MeshLambertMaterial({
   color: 0xddffdd
 });
 
+function lerp(a, b, x) {
+  return a + ((b - a) * x);
+}
+
 class Terrain {
   public object: THREE.Object3D;
-  private heightmap: SimplexNoise;
+  private generator: SimplexNoise;
+  private heights: number[][];
   private tiles: Dictionary<Dictionary<Tile>>;
 
   attach(parent: THREE.Object3D) {
-    this.heightmap = new SimplexNoise({
+    this.generator = new SimplexNoise({
       frequency: 0.05,
       min: 0,
       max: 5,
       octaves: 2
     });
 
+    this.heights = [];
     this.tiles = {};
     this.object = new THREE.Object3D();
     parent.add(this.object);
@@ -38,7 +44,7 @@ class Terrain {
       for(let y = 0; y <= depth; y++) {
         const xOffs = x + x1;
         const yOffs = y + y1;
-        const height = this.getHeight(xOffs, yOffs);
+        const height = this._getIntHeight(xOffs, yOffs);
         vertices.push(xOffs, height, yOffs);
         if(x > 0 && y > 0) {
           const tile = new Tile(xOffs, yOffs);
@@ -72,12 +78,37 @@ class Terrain {
     this.object.add(object);
   }
 
-  getHeight(x: number, y: number) {
-    return this.heightmap.scaled2D(x, y);
+  private _getIntHeight(x: number, y: number) {
+    const height = this.heights[x] && this.heights[x][y];
+    if(height !== undefined) {
+      return height;
+    }
+
+    const h = this.generator.scaled2D(x, y);
+    this.heights[x] = this.heights[x] || [];
+    this.heights[x][y] = h;
+    return h;
+  }
+
+  private _getLerpHeight(x: number, y: number) {
+    const x1 = Math.floor(x);
+    const x2 = Math.ceil(x);
+    const y1 = Math.floor(y);
+    const y2 = Math.ceil(y);
+    const xLerp = lerp(x1, x2, x % 1);
+    const yLerp = lerp(y1, y2, y % 1);
+    const a = this._getIntHeight(x1, y1);
+    const b = this._getIntHeight(x1, y2);
+    const c = this._getIntHeight(x2, y1);
+    const d = this._getIntHeight(x2, y2);
+    const xl1 = lerp(a, c, xLerp);
+    const xl2 = lerp(b, d, xLerp);
+    const yl = lerp(xl1, xl2, yLerp);
+    return yl;
   }
 
   getPosition(coords: THREE.Vector2) {
-    const height = this.getHeight(coords.x, coords.y);
+    const height = this._getLerpHeight(coords.x, coords.y);
     return new THREE.Vector3(coords.x, height, coords.y);
   }
 }
