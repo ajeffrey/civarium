@@ -16,9 +16,6 @@ stats.showPanel(0);
 document.body.appendChild(stats.dom);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
-window.addEventListener('resize', () => {
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
 
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -43,6 +40,11 @@ ModelLoader.onReady(() => {
   const cameraObj = EntityManager.create(scene, 'Camera');
   const camera = cameraObj.addComponent(Camera, 4);
   const controls = new Controls(camera);
+
+  window.addEventListener('resize', () => {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.resize();
+  });
 
   Terrain.attach(scene);
   Clock.attach(document.body);

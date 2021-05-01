@@ -35,6 +35,7 @@ export class Model extends Component {
     } else {
       newAnim.play();
     }
+    
     if(cb) {
       const handler = () => {
         cb();

@@ -40,10 +40,8 @@ class PickingFruitState extends State {
     console.log('picking fruit');
     const model = machine.entity.getComponent(Model);
     const anim = model.animations['picking fruit'];
-    anim.setLoop(THREE.LoopOnce, 0);
-    model.setAnimation('picking fruit', () => {
-      console.log('picked yeee');
-    });
+    // anim.setLoop(THREE.LoopOnce, 0);
+    model.setAnimation('picking fruit');
   }
 }
 

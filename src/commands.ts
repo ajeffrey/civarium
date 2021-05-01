@@ -62,7 +62,8 @@ export const moveToCoords = (human: Human, destination: THREE.Vector2, within = 
   const yDiff = destination.y - human.location.coords.y;
   const angle = Math.atan2(yDiff, xDiff);
   human.entity.transform.rotation.y = Math.PI / 2 + Math.atan2(yDiff, xDiff);
-
+  human.state.setState('moving');
+  
   return {
     name: 'moving',
     step() {

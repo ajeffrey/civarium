@@ -32,9 +32,9 @@ export default class Camera extends Component {
   constructor(entity: Entity) {
     super(entity);
 
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-    const camera = this.camera = new THREE.OrthographicCamera(-width / 2, width / 2, height / 2, -height / 2, 1, 2000);
+    const width = window.innerWidth / 2;
+    const height = window.innerHeight / 2;
+    const camera = this.camera = new THREE.OrthographicCamera(-width, width, height, -height, 1, 2000);
     camera.zoom = 25;
     camera.updateProjectionMatrix();
 
@@ -43,6 +43,13 @@ export default class Camera extends Component {
     this._updatePosition();
 
     entity.transform.add(camera);
+  }
+
+  resize() {
+    const width = window.innerWidth / 2;
+    const height = window.innerHeight / 2;
+    Object.assign(this.camera, { left: -width, right: width, top: height, bottom: -height });
+    this.camera.updateProjectionMatrix();
   }
 
   zoomBy(zoom: number) {
