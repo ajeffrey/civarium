@@ -35,11 +35,11 @@ export default class Camera extends Component {
     const width = window.innerWidth;
     const height = window.innerHeight;
     const camera = this.camera = new THREE.OrthographicCamera(-width / 2, width / 2, height / 2, -height / 2, 1, 2000);
-    camera.zoom = 10;
+    camera.zoom = 25;
     camera.updateProjectionMatrix();
 
     this.focus = new THREE.Vector3(0, 0, 0);
-    this.sphere = new Spherical(100, Math.PI / 4, Math.PI / 4);
+    this.sphere = new Spherical(100, Math.PI / 4, Math.PI * 1 / 4);
     this._updatePosition();
 
     entity.transform.add(camera);

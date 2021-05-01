@@ -1,9 +1,10 @@
-import Human from './entities/Civ';
+import Human from './entities/Human';
 import { FoodSource, Food } from './components/FoodSource';
 import Location from './components/Location';
 import EntityManager from './EntityManager';
 import nearestLocation from './queries/nearestLocation';
 import Time from './Time';
+import Terrain from './Terrain';
 
 export interface ICommand {
   name: string;
@@ -44,7 +45,7 @@ export const findFood = (human: Human) => (next: INext): ICommand => {
   if(nearestFood) {
     const s = seq(
       () => moveToCoords(human, nearestFood.coords, 2),
-      () => harvestFood(nearestFood.entity.getComponent(FoodSource)),
+      () => harvestFood(human, nearestFood.entity.getComponent(FoodSource)),
       food => food ? eatFood(human, food)(next) : next(null)
     );
 
@@ -57,7 +58,10 @@ export const findFood = (human: Human) => (next: INext): ICommand => {
 
 export const moveToCoords = (human: Human, destination: THREE.Vector2, within = 0.1) => (next: INext): ICommand => {
   const unit = destination.clone().sub(human.location.coords).normalize();
-  // human.state.setState('moving');
+  const xDiff = destination.x - human.location.coords.x;
+  const yDiff = destination.y - human.location.coords.y;
+  const angle = Math.atan2(yDiff, xDiff);
+  human.entity.transform.rotation.y = Math.PI / 2 + Math.atan2(yDiff, xDiff);
 
   return {
     name: 'moving',
@@ -74,14 +78,15 @@ export const moveToCoords = (human: Human, destination: THREE.Vector2, within = 
   };
 }
 
-export const harvestFood = (foodSource: FoodSource) => (next: INext<Food | null>): ICommand => {
+export const harvestFood = (human: Human, foodSource: FoodSource) => (next: INext<Food | null>): ICommand => {
   let timer = 0;
+  human.state.setState('picking fruit');
 
   return {
     name: 'harvestingFood',
     step() {
       timer += Time.deltaTime;
-      if(timer >= 1) {
+      if(timer >= 3) {
         const food = foodSource.takeFood();
         return next(food);
 

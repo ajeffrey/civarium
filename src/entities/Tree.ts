@@ -12,7 +12,7 @@ export class Tree extends Component {
       apples.push(new Food('Apple', 20));
     }
 
-    entity.addComponent(Model, 'tree');
+    entity.addComponent(Model, 'tree', []);
     entity.addComponent(Located, coords);
     entity.addComponent(FoodSource, apples);
   }

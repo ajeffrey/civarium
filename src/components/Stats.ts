@@ -27,6 +27,12 @@ export default class Stats extends Component {
       this.sprites.push(sprite);
       position += 0.5;
     }
+
+    this.update();
+  }
+
+  hide() {
+    this.object.visible = false;
   }
 
   update() {

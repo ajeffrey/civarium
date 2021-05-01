@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import Stats = require('stats.js');
 import Camera from './entities/Camera';
 import Sun from './Sun';
-import Human from './entities/Civ';
+import Human from './entities/Human';
 import Terrain from './Terrain';
 import Controls from './Controls';
 import Clock from './ui/Clock';
@@ -33,8 +33,11 @@ scene.background = new THREE.Color(0xddddff);
 (window as any).scene = scene;
 
 ModelLoader.loadCollada('tree', '/models/tree.dae');
-ModelLoader.loadCollada('human', '/models/human.dae');
-ModelLoader.loadCollada('human', '/models/human.dae');
+ModelLoader.loadFBX('human', '/models/human.fbx');
+ModelLoader.loadFBX('walking', '/models/Walking.fbx');
+ModelLoader.loadFBX('picking fruit', '/models/Pick Fruit.fbx');
+ModelLoader.loadFBX('idle', '/models/Standing Idle.fbx');
+ModelLoader.loadFBX('dying', '/models/Dying Backwards.fbx');
 
 ModelLoader.onReady(() => {
   const cameraObj = EntityManager.create(scene, 'Camera');
@@ -52,33 +55,38 @@ ModelLoader.onReady(() => {
   sun.addComponent(Sun);
 
   const tree1 = EntityManager.create(scene, 'Tree');
-  tree1.addComponent(Tree, new THREE.Vector2(15, -10));
+  tree1.addComponent(Tree, new THREE.Vector2(15, 5));
   
   const tree2 = EntityManager.create(scene, 'Tree');
-  tree2.addComponent(Tree, new THREE.Vector2(-10, 10));
+  tree2.addComponent(Tree, new THREE.Vector2(0, 5));
 
   const human = EntityManager.create(scene, 'Human');
   human.addComponent(Human, new THREE.Vector2(0, 0));
-
   const axes = new THREE.AxesHelper(10);
-  axes.position.set(0, 2, 0);
+  axes.position.set(0, 4, 0);
   scene.add(axes);
 
   let running = true;
+
+  window.onblur = () => {
+    running = false;
+  }
+
+  window.addEventListener('keydown', e => {
+    if(e.key === ' ') {
+      running = !running;
+    }
+  })
 
   let prevTime = performance.now();
   function step(t) {
     stats.begin();
     const dt = (t - prevTime) / 1000;
     prevTime = t;
-
-    if(controls.keys[' ']) {
-      running = !running;
-    }
     
     if(running) {
-      controls.update();
       Time.update(dt);
+      controls.update();
       Clock.update();
       EntityManager.update();
     }

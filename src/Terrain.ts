@@ -45,7 +45,7 @@ class Terrain {
         const xOffs = x + x1;
         const yOffs = y + y1;
         const height = this._getIntHeight(xOffs, yOffs);
-        vertices.push(xOffs, height, yOffs);
+        vertices.push(xOffs, height, -yOffs);
         if(x > 0 && y > 0) {
           const tile = new Tile(xOffs, yOffs);
           this.tiles[xOffs] = this.tiles[xOffs] || {};
@@ -55,8 +55,8 @@ class Terrain {
           const b = x + ((y - 1) * (width + 1));
           const c = (x - 1) + (y * (width + 1));
           const d = x + (y * (width + 1));
-          indices.push(a, b, d);
-          indices.push(d, c, a);
+          indices.push(d, b, a);
+          indices.push(a, c, d);
         }
       }
     }
@@ -91,6 +91,7 @@ class Terrain {
   }
 
   private _getLerpHeight(x: number, y: number) {
+    return this._getIntHeight(x, y);
     const x1 = Math.floor(x);
     const x2 = Math.ceil(x);
     const y1 = Math.floor(y);
@@ -109,7 +110,7 @@ class Terrain {
 
   getPosition(coords: THREE.Vector2) {
     const height = this._getLerpHeight(coords.x, coords.y);
-    return new THREE.Vector3(coords.x, height, coords.y);
+    return new THREE.Vector3(coords.x, height, -coords.y);
   }
 }
 

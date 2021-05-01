@@ -9,12 +9,19 @@ export default class ModelManager {
     this._models[name] = model;
   }
 
-  static getCopy(name: string) {
+  static getOriginal(name: string) {
     const model = this._models[name];
     if(!model) {
       throw new Error(`model ${name} not found`);
     }
 
-    return SkeletonUtils.clone(model);
+    return model;
+  }
+
+  static getCopy(name: string) {
+    const model = this.getOriginal(name);
+
+    const skelly = SkeletonUtils.clone(model);
+    return skelly;
   }
 }
