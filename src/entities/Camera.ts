@@ -2,25 +2,8 @@ import * as THREE from 'three';
 import { Spherical } from 'three';
 import { Component, Entity } from '../Entity';
 
-interface ICameraViewport {
-  top: number;
-  bottom: number;
-  left: number;
-  right: number;
-}
-
 const clamp = (val: number, min: number, max: number) => {
   return Math.min(max, Math.max(val, min));
-}
-
-const calculateViewport = (zoom: number): ICameraViewport => {
-  const aspect = window.innerWidth / window.innerHeight;
-  return {
-    top: zoom,
-    bottom: -zoom,
-    left: -zoom * aspect,
-    right: zoom * aspect,
-  };
 };
 
 export default class Camera extends Component {
