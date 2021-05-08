@@ -91,21 +91,15 @@ class Terrain {
   }
 
   private _getLerpHeight(x: number, y: number) {
-    return this._getIntHeight(x, y);
+    // return this._getIntHeight(x, y);
     const x1 = Math.floor(x);
     const x2 = Math.ceil(x);
     const y1 = Math.floor(y);
     const y2 = Math.ceil(y);
-    const xLerp = lerp(x1, x2, x % 1);
-    const yLerp = lerp(y1, y2, y % 1);
-    const a = this._getIntHeight(x1, y1);
-    const b = this._getIntHeight(x1, y2);
-    const c = this._getIntHeight(x2, y1);
-    const d = this._getIntHeight(x2, y2);
-    const xl1 = lerp(a, c, xLerp);
-    const xl2 = lerp(b, d, xLerp);
-    const yl = lerp(xl1, xl2, yLerp);
-    return yl;
+    const xLerp1 = lerp(this._getIntHeight(x1, y1), this._getIntHeight(x2, y1), x % 1);
+    const xLerp2 = lerp(this._getIntHeight(x1, y2), this._getIntHeight(x2, y2), x % 1);
+    const yLerp = lerp(xLerp1, xLerp2, y % 1);
+    return yLerp;
   }
 
   getPosition(coords: THREE.Vector2) {

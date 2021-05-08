@@ -89,6 +89,10 @@ export default class Human extends Component {
     this.state = entity.addComponent(HumanState);
     this.state.setState('idle');
     this.command = idle(this);
+
+    if(localStorage.getItem('debug')) {
+      entity.transform.add(new THREE.Mesh(new THREE.SphereGeometry(0.1, 32, 32), new THREE.MeshBasicMaterial({ color: 0xff0000 })));
+    }
   }
 
   private getStats() {
