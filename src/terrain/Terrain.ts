@@ -15,7 +15,7 @@ export default class Terrain {
 
   constructor() {
     this.heightmap = new Heightmap();
-    this.chunkGenerator = new ChunkGenerator(this.heightmap, 5);
+    this.chunkGenerator = new ChunkGenerator(this.heightmap, 32);
     this.knownLocations = new Map<string, THREE.Vector2>();
     this.chunkManager = new ChunkManager(this.chunkGenerator);
     this.object = new THREE.Object3D;
