@@ -3,10 +3,10 @@ import Stats = require('stats.js');
 import Camera from './entities/Camera';
 import Sun from './Sun';
 import Human from './entities/Human';
-import Terrain from './Terrain';
+import Terrain from './Terrain/Terrain';
 import Controls from './Controls';
 import Clock from './ui/Clock';
-import EntityManager from './EntityManager';
+import { World } from './ecs';
 import ModelLoader from './ModelLoader';
 import { Tree } from './entities/Tree';
 import Time from './Time';
@@ -37,7 +37,7 @@ ModelLoader.loadFBX('idle', '/models/Standing Idle.fbx');
 ModelLoader.loadFBX('dying', '/models/Dying Backwards.fbx');
 
 ModelLoader.onReady(() => {
-  const cameraObj = EntityManager.create(scene, 'Camera');
+  const cameraObj = World.entities.create(scene, 'Camera');
   const camera = cameraObj.addComponent(Camera, 4);
   const controls = new Controls(camera);
 
@@ -46,24 +46,27 @@ ModelLoader.onReady(() => {
     camera.resize();
   });
 
-  Terrain.attach(scene);
   Clock.attach(document.body);
   Time.set(12 * 60);
 
-  Terrain.generate(-25, -25, 50, 50);
+  const terrain = new Terrain();
+  scene.add(terrain.object);
+  World.systems.add(terrain);
 
   // Entities
-  const sun = EntityManager.create(scene, 'Sun');
+  const sun = World.entities.create(scene, 'Sun');
   sun.addComponent(Sun);
 
-  const tree1 = EntityManager.create(scene, 'Tree');
-  tree1.addComponent(Tree, new THREE.Vector2(15, 5));
-  
-  const tree2 = EntityManager.create(scene, 'Tree');
-  tree2.addComponent(Tree, new THREE.Vector2(0, 5));
+  for(const coords of [new THREE.Vector2(15, 5), new THREE.Vector2(0, 5), new THREE.Vector2(-20, -10), new THREE.Vector2(-40, -20)]) {
+    const tree = World.entities.create(scene, 'Tree');
+    tree.addComponent(Tree, coords);
+  }
 
-  const human = EntityManager.create(scene, 'Human');
-  human.addComponent(Human, new THREE.Vector2(0, 0));
+  for(const coords of [new THREE.Vector2(0, 0), new THREE.Vector2(-10, -10)]) {
+  const human = World.entities.create(scene, 'Human');
+  human.addComponent(Human, coords);
+  }
+
   const axes = new THREE.AxesHelper(10);
   axes.position.set(0, 4, 0);
   scene.add(axes);
@@ -90,7 +93,7 @@ ModelLoader.onReady(() => {
       Time.update(dt);
       controls.update();
       Clock.update();
-      EntityManager.update();
+      World.update();
     }
 
     renderer.render(scene, camera.camera);

@@ -1,4 +1,4 @@
-import { Entity, Component } from "../Entity";
+import { Entity, Component } from "../ecs";
 
 export class State {
   name: string;

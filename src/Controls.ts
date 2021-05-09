@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import Camera from "./entities/Camera";
-import { Entity } from './Entity';
-import EntityManager from './EntityManager';
+import { World, Entity } from './ecs';
 import Time from './Time';
 
 const ARROW_LEFT = 'ArrowLeft';
@@ -39,7 +38,7 @@ export default class Controls {
 
       const caster = new THREE.Raycaster();
       caster.setFromCamera(mouse, this.camera.camera);
-      const objects = EntityManager.entities.map(e => e.transform);
+      const objects = World.entities.find([]).map(e => e.transform);
       const intersections = caster.intersectObjects(objects, true);
       let following: Entity | null = null;
 

@@ -1,11 +1,12 @@
 import * as THREE from 'three';
-import { Component, Entity } from '../../Entity';
+import { Component, Entity } from '../../ecs';
 import Time from '../../Time';
 import Location from '../../components/Location';
 import Stats from '../../components/Stats';
 import { Model } from '../../components/Model';
 import { State, StateMachine } from '../../components/StateMachine';
 import { ICommand, idle } from '../../commands';
+import Explorer from '../../components/Explorer';
 
 class IdleState extends State {
   name = 'idle';
@@ -84,6 +85,7 @@ export default class Human extends Component {
     this.thirst = 100;
     this._stats = entity.addComponent(Stats, () => this.getStats());
     this.location = entity.addComponent(Location, coords);
+    entity.addComponent(Explorer, 10);
     this._model = entity.addComponent(Model, 'human', ['walking', 'picking fruit', 'idle', 'dying']);
     this._model.model.scale.setScalar(0.01);
     this.state = entity.addComponent(HumanState);

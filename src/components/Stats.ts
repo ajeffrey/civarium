@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import * as Chroma from 'chroma-js';
-import { Component, Entity } from '../Entity';
+import { Component, Entity } from '../ecs';
 
 const gradient = Chroma.scale(['#bb0000', '#00bb00']).domain([0, 1]).mode('lch');
 

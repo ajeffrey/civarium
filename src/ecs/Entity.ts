@@ -1,15 +1,6 @@
 import shortid = require('shortid');
 import * as THREE from 'three';
-
-export abstract class Component {
-  constructor(public entity: Entity) {}
-
-  update() {}
-}
-
-interface IComponentClass<A extends any[], C extends Component> {
-  new(entity: Entity,  ...args: A): C;
-}
+import { Component, IComponentClass } from './Component';
 
 export class Entity {
   readonly id: string;

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Entity, Component } from "../Entity";
+import { Entity, Component } from "../ecs";
 import ModelManager from '../ModelManager';
 import Time from '../Time';
 

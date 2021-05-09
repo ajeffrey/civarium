@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Component, Entity } from './Entity';
+import { Component, Entity } from './ecs';
 import Time from './Time';
 
 export default class Sun extends Component {

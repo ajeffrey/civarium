@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Spherical } from 'three';
-import { Component, Entity } from '../Entity';
+import { Component, Entity } from '../ecs';
 
 const clamp = (val: number, min: number, max: number) => {
   return Math.min(max, Math.max(val, min));

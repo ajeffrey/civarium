@@ -1,10 +1,9 @@
 import Human from './entities/Human';
 import { FoodSource, Food } from './components/FoodSource';
 import Location from './components/Location';
-import EntityManager from './EntityManager';
 import nearestLocation from './queries/nearestLocation';
 import Time from './Time';
-import Terrain from './Terrain';
+import { World } from './ecs';
 
 export interface ICommand {
   name: string;
@@ -39,7 +38,7 @@ export const idle = (human: Human): ICommand => {
 };
 
 export const findFood = (human: Human) => (next: INext): ICommand => {
-  const viableFoodSources = EntityManager.entities.filter(e => e.hasComponent(FoodSource) && e.getComponent(FoodSource).hasFood());
+  const viableFoodSources = World.entities.find([FoodSource]).filter(e => e.getComponent(FoodSource).hasFood());
   const nearestFood = nearestLocation(human.location.coords, viableFoodSources.map(e => e.getComponent(Location)));
 
   if(nearestFood) {

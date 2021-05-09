@@ -1,8 +1,8 @@
-import { Entity, Component } from "../Entity";
-import Terrain from "../Terrain";
+import { Entity, Component } from "../ecs";
 
 export default class Location extends Component {
   public coords: THREE.Vector2;
+  readonly loadRange: number;
 
   constructor(
     entity: Entity,
@@ -14,8 +14,5 @@ export default class Location extends Component {
 
   moveTo(coords: THREE.Vector2) {
     this.coords = coords;
-    const location = Terrain.getPosition(coords);
-    this.entity.transform.position.copy(location);
-    this.entity.transform.updateMatrixWorld();
   }
 }

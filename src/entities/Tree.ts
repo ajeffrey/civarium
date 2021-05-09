@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { Food, FoodSource } from '../components/FoodSource';
 import Located from '../components/Location';
 import { Model } from '../components/Model';
-import { Component, Entity } from '../Entity';
+import { Component, Entity } from '../ecs';
 
 export class Tree extends Component {
   constructor(entity: Entity, coords: THREE.Vector2) {
