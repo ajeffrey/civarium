@@ -30,9 +30,11 @@ export default class Heightmap {
     const x2 = Math.ceil(x);
     const y1 = Math.floor(y);
     const y2 = Math.ceil(y);
-    const xLerp1 = lerp(this.getIntHeight(x1, y1), this.getIntHeight(x2, y1), x % 1);
-    const xLerp2 = lerp(this.getIntHeight(x1, y2), this.getIntHeight(x2, y2), x % 1);
-    const yLerp = lerp(xLerp1, xLerp2, y % 1);
+    const xlr = x >= 0 ? x % 1 : 1 + (x % 1);
+    const ylr = y >= 0 ? y % 1 : 1 + (y % 1);
+    const xLerp1 = lerp(this.getIntHeight(x1, y1), this.getIntHeight(x2, y1), xlr);
+    const xLerp2 = lerp(this.getIntHeight(x1, y2), this.getIntHeight(x2, y2), xlr);
+    const yLerp = lerp(xLerp1, xLerp2, ylr);
     return yLerp;
   }
 }
