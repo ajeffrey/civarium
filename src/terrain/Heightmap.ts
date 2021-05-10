@@ -1,28 +1,63 @@
-import FastSimplexNoise from "fast-simplex-noise";
+import { makeNoise2D } from "fast-simplex-noise";
+import SimplexNoise = require('simplex-noise');
 
 function lerp(a, b, x) {
   return a + ((b - a) * x);
 }
 
-export default class Heightmap {
-  private generator: FastSimplexNoise;
-  private heights: number[][];
+interface IOptions {
+  algorithm: 'white' | 'fast-simplex' | 'simplex';
+  octaves: number;
+  lacunarity: number;
+  persistence: number;
+}
 
-  constructor() {
-    this.generator = new FastSimplexNoise({ frequency: 0.05, min: 0, max: 5, octaves: 2 });
+const ZOOM = 64;
+const SCALE = 10;
+
+export default class Heightmap {
+  private generator: (x: number, y: number) => number;
+  private heights: number[][];
+  private options: IOptions;
+
+  constructor(options: IOptions) {
+    switch(options.algorithm) {
+      case 'white': 
+        this.generator = () => Math.random() * 2 - 1;
+        break;
+      case 'fast-simplex':
+        this.generator = makeNoise2D();
+        break;
+      case 'simplex':
+        const noise = new SimplexNoise();
+        this.generator = (x: number, y: number) => noise.noise2D(x, y);
+        break;
+    }
+    
     this.heights = [];
+    this.options = options;
   }
 
   getIntHeight(x: number, y: number) {
-    const height = this.heights[x] && this.heights[x][y];
-    if(height !== undefined) {
-      return height;
+    const cachedHeight = this.heights[x] && this.heights[x][y];
+    if(typeof cachedHeight === 'number') {
+      return cachedHeight;
     }
 
-    const h = this.generator.scaled2D(x, y);
+    let height = 0;
+    let amplitude = 1;
+    let frequency = 1;
+    
+    for(let i = 0; i < this.options.octaves; i++) {
+      const noiseValue = this.generator(x * frequency / ZOOM, y * frequency / ZOOM) * SCALE;
+      height += noiseValue * amplitude;
+      amplitude *= this.options.persistence;
+      frequency *= this.options.lacunarity;
+    }
+     
     this.heights[x] = this.heights[x] || [];
-    this.heights[x][y] = h;
-    return h;
+    this.heights[x][y] = height;
+    return height;
   }
 
   getLerpHeight(x: number, y: number) {

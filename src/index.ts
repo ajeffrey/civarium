@@ -63,8 +63,8 @@ ModelLoader.onReady(() => {
   }
 
   for(const coords of [new THREE.Vector2(0, 0), new THREE.Vector2(-10, -10)]) {
-  const human = World.entities.create(scene, 'Human');
-  human.addComponent(Human, coords);
+    const human = World.entities.create(scene, 'Human');
+    human.addComponent(Human, coords);
   }
 
   const axes = new THREE.AxesHelper(10);

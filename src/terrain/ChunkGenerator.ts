@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { VertexNormalsHelper } from 'three/examples/jsm/helpers/VertexNormalsHelper';
+// import { VertexNormalsHelper } from 'three/examples/jsm/helpers/VertexNormalsHelper';
 import Chunk from './Chunk';
 import Heightmap from './Heightmap';
 
@@ -29,7 +29,7 @@ export default class ChunkGenerator {
     const vertices: number[] = [];
     const indices: number[] = [];
     const normals = new Float32Array(vertexWidth * vertexWidth * 3);
-    const colors: number[] = [];
+    // const colors: number[] = [];
 
     const chunkStartX = (chunkX * chunkSize) - chunkSize / 2;
     const chunkStartY = (chunkY * chunkSize) - chunkSize / 2;
@@ -61,14 +61,14 @@ export default class ChunkGenerator {
     // face normals = (W + 2)^2
     for(let y = 0; y <= chunkSize + 1; y++) {
       for(let x = 0; x <= chunkSize + 1; x++) {
-        const xOffs = chunkStartX + x;
-        const yOffs = chunkStartY + y;
-        const height = this.heightmap.getIntHeight(xOffs, yOffs);
 
         // create vertices
         if(x <= chunkSize && y <= chunkSize) {
+          const xOffs = chunkStartX + x;
+          const yOffs = chunkStartY + y;
+          const height = this.heightmap.getIntHeight(xOffs, yOffs);
           vertices.push(xOffs, height, -yOffs);
-          colors.push(x / chunkSize, y / chunkSize, 0);
+          // colors.push(x / chunkSize, y / chunkSize, 0);
 
          // create faces
           if(x > 0 && y > 0) {
@@ -121,7 +121,7 @@ export default class ChunkGenerator {
     terrain.setIndex(indices);
     terrain.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
     terrain.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
-    terrain.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    // terrain.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
 
     const mesh = new THREE.Mesh(terrain, TERRAIN_MATERIAL);
     mesh.castShadow = true;

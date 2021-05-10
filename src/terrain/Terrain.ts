@@ -14,7 +14,7 @@ export default class Terrain {
   private knownLocations: Map<string, THREE.Vector2>;
 
   constructor() {
-    this.heightmap = new Heightmap();
+    this.heightmap = new Heightmap({ algorithm: 'fast-simplex', octaves: 4, lacunarity: 2, persistence: 0.25 });
     this.chunkGenerator = new ChunkGenerator(this.heightmap, 32);
     this.knownLocations = new Map<string, THREE.Vector2>();
     this.chunkManager = new ChunkManager(this.chunkGenerator);

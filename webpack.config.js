@@ -7,15 +7,18 @@ const DEST = path.join(ROOT, 'dist');
 
 module.exports = {
   context: SRC,
-  entry: path.join(SRC, 'index.ts'),
+  entry: {
+    build: path.join(SRC, 'index.ts'),
+    heightmap: path.join(ROOT, 'tools', 'heightmap', 'index.ts'),
+  },
   output: {
     path: DEST,
-    filename: 'build.js'
+    filename: '[name].js'
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js', '.scss', 'fx'],
     modules: [
-      path.join(ROOT, 'src'),
+      ROOT,
       path.join('node_modules'),
     ],
   },
@@ -38,6 +41,10 @@ module.exports = {
     new CopyPlugin([{
       from: path.join(SRC, 'index.html'),
       to: DEST,
+    }]),
+    new CopyPlugin([{
+      from: path.join(ROOT, 'tools/heightmap/index.html'),
+      to: DEST + '/heightmap.html',
     }]),
     new CopyPlugin([{
       from: path.join(ROOT, 'assets'),
