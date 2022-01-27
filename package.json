@@ -15,7 +15,7 @@
     "rxjs": "^6.3.2",
     "shortid": "^2.2.13",
     "stats.js": "^0.17.0",
-    "three": "^0.128.0",
+    "three": "^0.137.0",
     "ts-loader": "^5.0.0",
     "webpack-dev-server": "^3.11.2",
     "webpack-glsl-loader": "^1.0.1"
