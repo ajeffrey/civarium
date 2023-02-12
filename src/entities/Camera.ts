@@ -7,7 +7,7 @@ const clamp = (val: number, min: number, max: number) => {
 };
 
 export default class Camera extends Component {
-  public camera: THREE.OrthographicCamera;
+  public camera: THREE.PerspectiveCamera;
   public focus: THREE.Vector3;
   private sphere: THREE.Spherical;
   public following: Entity | null;
@@ -17,8 +17,11 @@ export default class Camera extends Component {
 
     const width = window.innerWidth / 2;
     const height = window.innerHeight / 2;
-    const camera = this.camera = new THREE.OrthographicCamera(-width, width, height, -height, 1, 2000);
-    camera.zoom = 25;
+    // const camera = this.camera = new THREE.OrthographicCamera(-width, width, height, -height, 1, 2000);
+    const camera = this.camera = new THREE.PerspectiveCamera(45, width / height, 1, 2000)
+    camera.position.set(100, 100, 100)
+    camera.lookAt(0, 0, 0)
+    // camera.zoom = 25;
     camera.updateProjectionMatrix();
 
     this.focus = new THREE.Vector3(0, 0, 0);
@@ -46,7 +49,7 @@ export default class Camera extends Component {
 
   rotate(h: number, v: number) {
     this.sphere.theta += h;
-    this.sphere.phi = clamp(this.sphere.phi + v, Math.PI * 2 / 8, Math.PI * 3 / 8);
+    this.sphere.phi = clamp(this.sphere.phi + v, Math.PI * 2 / 8, Math.PI * 3.5 / 8);
     this._updatePosition();
   }
 

@@ -1,15 +1,20 @@
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
+const ForkTsCheckerPlugin = require('fork-ts-checker-webpack-plugin');
 
-const ROOT = __dirname;
-const SRC = path.join(ROOT, 'src');
-const DEST = path.join(ROOT, 'dist');
+const SRC = path.join(__dirname, 'src');
+const DEST = path.join(__dirname, 'dist');
+const TOOLDIR = path.join(__dirname, 'tools');
+const tools = require('fs').readdirSync(TOOLDIR);
 
 module.exports = {
-  context: SRC,
+  context: __dirname,
   entry: {
     build: path.join(SRC, 'index.ts'),
-    heightmap: path.join(ROOT, 'tools', 'heightmap', 'index.ts'),
+    ...tools.reduce((obj, toolName) => {
+      obj[toolName] = path.join(TOOLDIR, toolName, 'index.ts');
+      return obj;
+    }, {}),
   },
   output: {
     path: DEST,
@@ -18,7 +23,7 @@ module.exports = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js', '.scss', 'fx'],
     modules: [
-      ROOT,
+      __dirname,
       path.join('node_modules'),
     ],
   },
@@ -28,6 +33,9 @@ module.exports = {
         test: /\.tsx?$/,
         loader: 'ts-loader',
         exclude: /node_modules/,
+        options: {
+          transpileOnly: true
+        }
       },
       {
         test: /\.fx$/,
@@ -42,14 +50,17 @@ module.exports = {
       from: path.join(SRC, 'index.html'),
       to: DEST,
     }]),
+    ...tools.map(toolName => {
+      return new CopyPlugin([{
+        from: path.join(TOOLDIR, toolName, 'index.html'),
+        to: DEST + `/${toolName}.html`
+      }]);
+    }),
     new CopyPlugin([{
-      from: path.join(ROOT, 'tools/heightmap/index.html'),
-      to: DEST + '/heightmap.html',
-    }]),
-    new CopyPlugin([{
-      from: path.join(ROOT, 'assets'),
+      from: path.join(__dirname, 'assets'),
       to: path.join(DEST),
     }]),
+    new ForkTsCheckerPlugin(),
   ],
   devServer: {
     contentBase: DEST,

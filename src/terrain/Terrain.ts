@@ -6,6 +6,10 @@ import Explorer from '../components/Explorer';
 import Location from '../components/Location';
 import ChunkManager from './ChunkManager';
 
+interface GenerationOptions {
+  seed?: string;
+}
+
 export default class Terrain {
   private heightmap: Heightmap;
   private chunkGenerator: ChunkGenerator;
@@ -13,8 +17,9 @@ export default class Terrain {
   public object: THREE.Object3D;
   private knownLocations: Map<string, THREE.Vector2>;
 
-  constructor() {
-    this.heightmap = new Heightmap({ algorithm: 'fast-simplex', octaves: 4, lacunarity: 2, persistence: 0.25 });
+  constructor(options: GenerationOptions) {
+    const seed = options.seed || Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
+    this.heightmap = new Heightmap({ algorithm: 'fast-simplex', octaves: 4, lacunarity: 2.5, persistence: 0.0125, seed });
     this.chunkGenerator = new ChunkGenerator(this.heightmap, 32);
     this.knownLocations = new Map<string, THREE.Vector2>();
     this.chunkManager = new ChunkManager(this.chunkGenerator);

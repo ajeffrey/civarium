@@ -13,17 +13,19 @@
     html, body {
       height: 100%;
       overscroll-behavior: none;
-      overflow: hidden;
     }
     body {
       display: flex;
     }
     canvas {
-      flex-grow: 1;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: -webkit-crisp-edges;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
     }
   </style>
 </head>
 <body>
-  <script src="/build.js"></script>
+  <script src="/rainfall.js"></script>
 </body>
 </html>

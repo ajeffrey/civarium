@@ -17,7 +17,6 @@ export default class ModelLoader {
         scene.traverse(obj => {
           if(obj instanceof THREE.Mesh) {
             obj.castShadow = true;
-            obj.receiveShadow = true;
           }
         });
         
@@ -33,7 +32,6 @@ export default class ModelLoader {
         group.traverse(obj => {
           if(obj instanceof THREE.Mesh) {
             obj.castShadow = true;
-            obj.receiveShadow = true;
           }
         });
 
@@ -49,7 +47,6 @@ export default class ModelLoader {
         scene.traverse(obj => {
           if(obj instanceof THREE.Mesh) {
             obj.castShadow = true;
-            obj.receiveShadow = true;
           }
         });
 

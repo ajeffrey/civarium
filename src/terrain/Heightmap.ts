@@ -1,5 +1,6 @@
 import { makeNoise2D } from "fast-simplex-noise";
 import SimplexNoise = require('simplex-noise');
+import seedrandom = require('seedrandom');
 
 function lerp(a, b, x) {
   return a + ((b - a) * x);
@@ -10,10 +11,14 @@ interface IOptions {
   octaves: number;
   lacunarity: number;
   persistence: number;
+  seed: string;
 }
 
 const ZOOM = 64;
-const SCALE = 10;
+const SCALE = 3;
+
+const SMOOTHNESS = 3;
+const HEIGHT_FACTOR = 3;
 
 export default class Heightmap {
   private generator: (x: number, y: number) => number;
@@ -29,7 +34,7 @@ export default class Heightmap {
         this.generator = makeNoise2D();
         break;
       case 'simplex':
-        const noise = new SimplexNoise();
+        const noise = new SimplexNoise(options.seed);
         this.generator = (x: number, y: number) => noise.noise2D(x, y);
         break;
     }
@@ -54,6 +59,10 @@ export default class Heightmap {
       amplitude *= this.options.persistence;
       frequency *= this.options.lacunarity;
     }
+
+    // round to SMOOTHNESS (e.g. nearest 1/4)
+    //5.55 => 22.2 => 22 => 5.5
+    height = (Math.round(height * SMOOTHNESS) / SMOOTHNESS) * HEIGHT_FACTOR;
      
     this.heights[x] = this.heights[x] || [];
     this.heights[x][y] = height;

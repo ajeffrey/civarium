@@ -2,7 +2,8 @@ import Heightmap from "src/terrain/Heightmap";
 
 const testSize = 32;
 const scaled = testSize * 16;
-const heightmap = new Heightmap({ algorithm: 'fast-simplex', octaves: 4, lacunarity: 2, persistence: 0.5 });
+const seed = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
+const heightmap = new Heightmap({ algorithm: 'fast-simplex', octaves: 4, lacunarity: 2, persistence: 0.5, seed });
 const heights = [];
 let min = 0;
 let max = 0;

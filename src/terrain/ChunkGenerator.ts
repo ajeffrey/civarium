@@ -3,8 +3,10 @@ import * as THREE from 'three';
 import Chunk from './Chunk';
 import Heightmap from './Heightmap';
 
-const TERRAIN_MATERIAL = new THREE.MeshLambertMaterial({
-  color: 0xddffdd
+const TERRAIN_MATERIAL = new THREE.MeshPhongMaterial({
+  color: 0x2f944a,
+  flatShading: true,
+  shininess: 0,
 });
 
 // normal computation adapted from BufferGeometry#computeVertexNormals()
@@ -35,7 +37,7 @@ export default class ChunkGenerator {
     const chunkStartY = (chunkY * chunkSize) - chunkSize / 2;
 
     const getVertex = (target: THREE.Vector3, x: number, y: number) => {
-      if(x >= 0 && x <= chunkSize && y >= 0 && y <= chunkSize) {
+      if (x >= 0 && x <= chunkSize && y >= 0 && y <= chunkSize) {
         target.fromArray(vertices, (x + (y * vertexWidth)) * 3);
 
       } else {
@@ -47,7 +49,7 @@ export default class ChunkGenerator {
     };
 
     const addNormal = (x: number, y: number) => {
-      if(x >= 0 && x <= chunkSize && y >= 0 && y <= chunkSize) {
+      if (x >= 0 && x <= chunkSize && y >= 0 && y <= chunkSize) {
         const offset = (x + (y * vertexWidth)) * 3;
         normals[offset] += cb.x;
         normals[offset + 1] += cb.y;
@@ -59,19 +61,19 @@ export default class ChunkGenerator {
     // faces = W^2
     // vertices = (W+1)^2
     // face normals = (W + 2)^2
-    for(let y = 0; y <= chunkSize + 1; y++) {
-      for(let x = 0; x <= chunkSize + 1; x++) {
+    for (let y = 0; y <= chunkSize + 1; y++) {
+      for (let x = 0; x <= chunkSize + 1; x++) {
 
         // create vertices
-        if(x <= chunkSize && y <= chunkSize) {
+        if (x <= chunkSize && y <= chunkSize) {
           const xOffs = chunkStartX + x;
           const yOffs = chunkStartY + y;
           const height = this.heightmap.getIntHeight(xOffs, yOffs);
           vertices.push(xOffs, height, -yOffs);
           // colors.push(x / chunkSize, y / chunkSize, 0);
 
-         // create faces
-          if(x > 0 && y > 0) {
+          // create faces
+          if (x > 0 && y > 0) {
             const a = (x - 1) + ((y - 1) * vertexWidth);
             const b = x + ((y - 1) * vertexWidth);
             const c = (x - 1) + (y * vertexWidth);
@@ -107,7 +109,7 @@ export default class ChunkGenerator {
     }
 
     // normalise vertex normals
-    for(let i = 0; i < normals.length; i += 3) {
+    for (let i = 0; i < normals.length; i += 3) {
       const x = normals[i];
       const y = normals[i + 1];
       const z = normals[i + 2];
@@ -124,11 +126,11 @@ export default class ChunkGenerator {
     // terrain.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
 
     const mesh = new THREE.Mesh(terrain, TERRAIN_MATERIAL);
-    mesh.castShadow = true;
     mesh.receiveShadow = true;
+    mesh.castShadow = false;
 
-    const edges = new THREE.EdgesGeometry(mesh.geometry, 0);
-    const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0 }));
+    const edges = new THREE.EdgesGeometry(mesh.geometry, 1);
+    const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0, opacity: 0.75 }));
 
     const object = new THREE.Object3D();
     object.name = `Chunk ${chunkX} ${chunkY}`;
