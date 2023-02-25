@@ -21,7 +21,7 @@ module.exports = {
     filename: '[name].js'
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.js', '.scss', 'fx'],
+    extensions: ['.tsx', '.ts', '.js', '.scss', 'fx', '.svelte'],
     modules: [
       __dirname,
       path.join('node_modules'),
@@ -36,6 +36,11 @@ module.exports = {
         options: {
           transpileOnly: true
         }
+      },
+      {
+        test: /\.svelte$/,
+        loader: 'svelte-loader',
+        exclude: /node_modules/,
       },
       {
         test: /\.fx$/,
@@ -66,5 +71,9 @@ module.exports = {
     contentBase: DEST,
     compress: true,
     port: 9000
+  },
+  watch: false,
+  watchOptions: { 
+    poll: 1000
   }
 }

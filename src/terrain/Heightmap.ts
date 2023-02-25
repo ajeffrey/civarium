@@ -43,6 +43,17 @@ export default class Heightmap {
     this.options = options;
   }
 
+  getArea(x: number, y: number, size: number) {
+    const heights: number[] = [];
+    for(let hy = y; hy < (y + size); hy++) {
+      for(let hx = x; hx < (x + size); hx++) {
+        heights.push(this.getIntHeight(hx, hy));
+      }
+    }
+
+    return heights;
+  }
+
   getIntHeight(x: number, y: number) {
     const cachedHeight = this.heights[x] && this.heights[x][y];
     if(typeof cachedHeight === 'number') {
