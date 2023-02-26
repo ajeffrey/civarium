@@ -1,73 +1,13 @@
 import * as THREE from 'three';
-import { Component, Entity } from '../../ecs';
+import { Component, Entity, World } from '../../ecs';
 import Time from '../../Time';
 import Location from '../../components/Location';
 import Stats from '../../components/Stats';
 import { Model } from '../../components/Model';
-import { State, StateMachine } from '../../components/StateMachine';
+import { StateMachine } from '../../components/StateMachine';
 import { ICommand, idle } from '../../commands';
 import Explorer from '../../components/Explorer';
-
-class IdleState extends State {
-  name = 'idle';
-
-  enter(machine: StateMachine) {
-    console.log('idle');
-    machine.entity.getComponent(Model).setAnimation('idle');
-  }
-
-  exit(machine: StateMachine) {
-  }
-}
-
-class MovingState extends State {
-  name = 'moving';
-
-  enter(machine: StateMachine) {
-    console.log('moving');
-    machine.entity.getComponent(Model).setAnimation('walking');
-  }
-
-  exit(machine: StateMachine) {
-    console.log('moving exit');
-  }
-}
-
-class PickingFruitState extends State {
-  name = 'picking fruit';
-  public animation: THREE.AnimationClip;
-
-  enter(machine: StateMachine) {
-    console.log('picking fruit');
-    const model = machine.entity.getComponent(Model);
-    const anim = model.animations['picking fruit'];
-    // anim.setLoop(THREE.LoopOnce, 0);
-    model.setAnimation('picking fruit');
-  }
-}
-
-class DyingState extends State {
-  name = 'dying';
-
-  enter(machine: StateMachine) {
-    machine.entity.getComponent(Stats).hide();
-    const model = machine.entity.getComponent(Model);
-    model.animations.dying.clampWhenFinished = true;
-    model.animations.dying.setLoop(THREE.LoopOnce, 0);
-    model.setAnimation('dying');
-  }
-}
-
-class HumanState extends StateMachine {
-  constructor(entity) {
-    super(entity);
-    this.addState(new IdleState);
-    this.addState(new MovingState);
-    this.addState(new PickingFruitState);
-    this.addState(new DyingState);
-    this.setState('idle');
-  }
-}
+import { createStateMachine, States } from './State';
 
 export default class Human extends Component {
   private command: ICommand;
@@ -88,7 +28,7 @@ export default class Human extends Component {
     entity.addComponent(Explorer, 10);
     this._model = entity.addComponent(Model, 'human', ['walking', 'picking fruit', 'idle', 'dying']);
     this._model.model.scale.setScalar(0.01);
-    this.state = entity.addComponent(HumanState);
+    this.state = createStateMachine(this.entity);
     this.state.setState('idle');
     this.command = idle(this);
 
@@ -102,7 +42,7 @@ export default class Human extends Component {
   }
 
   update() {
-    if(!(this.state.state instanceof DyingState)) {
+    if(!(this.state.state instanceof States.Dying)) {
       this.hunger -= Time.deltaTime * 5;
       this.thirst -= Time.deltaTime * 5;
 
