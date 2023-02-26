@@ -8,7 +8,22 @@ import { RainfallSimulator } from './RainfallSimulator';
 const WATER_MATERIAL = new THREE.MeshPhongMaterial({
   color: 0x007cf0,
   flatShading: true,
-  shininess: 0,
+  shininess: 50,
+});
+
+const textureLoader = new THREE.TextureLoader();
+textureLoader.load('/snow.jpg', texture => {
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(0.5, 0.5);
+  console.log('texture loaded');
+  WATER_MATERIAL.displacementMap = texture;
+  WATER_MATERIAL.displacementScale = 0.25;
+  setInterval(() => {
+    texture.offset.addScalar(1 / 1000);
+    texture.offset.x %= 1;
+    texture.offset.y %= 1;
+  }, 1000 / 40);
 });
 
 export default class ChunkGenerator {
@@ -17,7 +32,7 @@ export default class ChunkGenerator {
 
   constructor(private heightmap: Heightmap, public chunkSize: number) {
     this.meshGenerator = new MeshGenerator();
-    this.rainfallSimulator = new RainfallSimulator();
+    this.rainfallSimulator = new RainfallSimulator(chunkSize + 1);
   }
 
   generate(chunkX: number, chunkY: number) {
@@ -25,12 +40,12 @@ export default class ChunkGenerator {
     const offsX = chunkX * chunkSize;
     const offsY = chunkY * chunkSize;
     const chunkHeightmap = this.heightmap.getArea(offsX, offsY, chunkSize + 1);
-    const features = this.rainfallSimulator.simulate(chunkSize, chunkHeightmap);
+    const features = this.rainfallSimulator.simulate(chunkHeightmap);
     const mesh = this.meshGenerator.generate(chunkSize, chunkHeightmap);
     mesh.position.set(offsX, 0, -offsY);
       for (const feature of features) {
         const matrix = new THREE.Object3D();
-        const featureGeo = new THREE.PlaneGeometry(1, 1);
+        const featureGeo = new THREE.PlaneGeometry(1, 1, 32, 32);
         const featureMesh = new THREE.InstancedMesh(featureGeo, WATER_MATERIAL, feature.cells.length);
         featureMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
         for (let i = 0; i < feature.cells.length; i++) {

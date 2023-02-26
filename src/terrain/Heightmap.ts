@@ -73,7 +73,8 @@ export default class Heightmap {
 
     // round to SMOOTHNESS (e.g. nearest 1/4)
     //5.55 => 22.2 => 22 => 5.5
-    height = (Math.round(height * SMOOTHNESS) / SMOOTHNESS) * HEIGHT_FACTOR;
+    height = height * HEIGHT_FACTOR;
+    //height = (Math.round(height * SMOOTHNESS) / SMOOTHNESS) * HEIGHT_FACTOR;
      
     this.heights[x] = this.heights[x] || [];
     this.heights[x][y] = height;
