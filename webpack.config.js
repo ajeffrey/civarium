@@ -21,7 +21,11 @@ module.exports = {
     filename: '[name].js'
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.js', '.scss', 'fx', '.svelte'],
+    alias: {
+      svelte: path.resolve('node_modules', 'svelte')
+    },
+    extensions: ['.tsx', '.ts', '.js', '.scss', '.fx', '.svelte'],
+    conditionNames: ['svelte'],
     modules: [
       __dirname,
       path.join('node_modules'),
@@ -41,6 +45,11 @@ module.exports = {
         test: /\.svelte$/,
         loader: 'svelte-loader',
         exclude: /node_modules/,
+        options: {
+          preprocess: require('svelte-preprocess')({
+            /* options */
+          })
+        }
       },
       {
         test: /\.fx$/,
@@ -68,7 +77,7 @@ module.exports = {
     new ForkTsCheckerPlugin(),
   ],
   devServer: {
-    contentBase: DEST,
+    static: DEST,
     compress: true,
     port: 9000
   },

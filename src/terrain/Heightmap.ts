@@ -1,6 +1,6 @@
 import { makeNoise2D } from "fast-simplex-noise";
-import SimplexNoise = require('simplex-noise');
-import seedrandom = require('seedrandom');
+import SimplexNoise from 'simplex-noise';
+import seedrandom from 'seedrandom';
 
 function lerp(a, b, x) {
   return a + ((b - a) * x);

@@ -8,6 +8,7 @@
   },
   "devDependencies": {
     "@types/cannon": "^0.1.3",
+    "@types/stats.js": "^0.17.0",
     "@types/three": "^0.127.1",
     "babylonjs": "^3.2.0",
     "cannon": "^0.6.2",
@@ -19,19 +20,21 @@
     "stats.js": "^0.17.0",
     "svelte": "^3.55.1",
     "svelte-loader": "^3.1.6",
+    "svelte-preprocess": "^5.0.1",
     "three": "^0.128.0",
     "ts-loader": "^5.0.0",
-    "webpack-dev-server": "^3.11.2",
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.11.1",
     "webpack-glsl-loader": "^1.0.1"
   },
   "dependencies": {
+    "@tsconfig/svelte": "^3.0.0",
     "@types/chroma-js": "^2.0.0",
     "chroma-js": "^2.1.0",
     "fast-simplex-noise": "^4.0.0",
     "seedrandom": "^3.0.5",
     "simplex-noise": "^2.4.0",
-    "typescript": "^4.2.4",
-    "webpack": "^5.36.2",
-    "webpack-cli": "^4.7.0"
+    "typescript": "^4.9.5",
+    "webpack": "^5.36.2"
   }
 }

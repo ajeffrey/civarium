@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import Stats = require('stats.js');
+import Stats from 'stats.js';
 import Camera from './entities/Camera';
 import Sun from './Sun';
 import Human from './entities/Human';
@@ -10,6 +10,7 @@ import { World } from './ecs';
 import ModelLoader from './ModelLoader';
 import { Tree } from './entities/Tree';
 import Time from './Time';
+import { Console } from './Console';
 
 var stats = new Stats();
 stats.showPanel(0);
@@ -20,7 +21,7 @@ const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPr
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.VSMShadowMap;
+renderer.shadowMap.type = THREE.BasicShadowMap;
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
@@ -82,6 +83,9 @@ ModelLoader.onReady(() => {
   const axes = new THREE.AxesHelper(10);
   axes.position.set(0, 4, 0);
   scene.add(axes);
+
+  const console = World.entities.create(scene, 'Console');
+  console.addComponent(Console)
 
   let running = true;
 

@@ -1,4 +1,4 @@
-import shortid = require('shortid');
+import shortid from 'shortid';
 import * as THREE from 'three';
 import { Component, IComponentClass } from './Component';
 
