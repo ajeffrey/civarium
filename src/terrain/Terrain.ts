@@ -19,7 +19,7 @@ export default class Terrain {
 
   constructor(options: GenerationOptions) {
     const seed = options.seed || Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
-    this.heightmap = new Heightmap({ algorithm: 'fast-simplex', octaves: 12, lacunarity: 2.5, persistence: 0.5, seed });
+    this.heightmap = new Heightmap({ algorithm: 'fast-simplex', octaves: 12, lacunarity: 2.5, persistence: 0.125, seed });
     this.chunkGenerator = new ChunkGenerator(this.heightmap, 32);
     this.knownLocations = new Map<string, THREE.Vector2>();
     this.chunkManager = new ChunkManager(this.chunkGenerator);

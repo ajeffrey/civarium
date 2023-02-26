@@ -1,7 +1,6 @@
 
 import * as THREE from 'three';
 // import { VertexNormalsHelper } from 'three/examples/jsm/helpers/VertexNormalsHelper';
-import Heightmap from './Heightmap';;
 
 const TERRAIN_MATERIAL = new THREE.MeshPhongMaterial({
   color: 0x2f944a,
@@ -119,7 +118,7 @@ export default class MeshGenerator {
     mesh.castShadow = false;
 
     const edges = new THREE.EdgesGeometry(mesh.geometry, 1);
-    const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0, opacity: 0.75 }));
+    const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0 }));
 
     const object = new THREE.Object3D();
     object.name = `Terrain Mesh`;

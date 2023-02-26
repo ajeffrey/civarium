@@ -20,16 +20,16 @@ export default class Sun extends Component {
     sun.add(ambientLight);
 
     const light = this.light = new THREE.DirectionalLight(0xffffff, 0.5);
-    light.position.y = 1000;
+    light.position.y = 500;
     light.name = 'Sun Light';
     light.castShadow = true;
     light.shadow.camera.left = light.shadow.camera.bottom = -100;
     light.shadow.camera.top = light.shadow.camera.right = 100;
     light.shadow.bias = -0.001;
-    light.shadow.mapSize.width = 256;
-    light.shadow.mapSize.height = 256;
+    light.shadow.mapSize.width = 512;
+    light.shadow.mapSize.height = 512;
     light.shadow.camera.near = 1;
-    light.shadow.camera.far = 1500;
+    light.shadow.camera.far = 600;
     light.target.position.set(0, 0, 0);
     entity.transform.add(new THREE.CameraHelper(light.shadow.camera));
     sun.add(light);
