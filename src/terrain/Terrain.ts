@@ -1,23 +1,24 @@
 import * as THREE from 'three';
+import { Entity, Component, World } from 'src/ecs';
+import Explorer from 'src/components/Explorer';
+import Location from 'src/components/Location';
 import ChunkGenerator from './ChunkGenerator';
 import Heightmap from './Heightmap';
-import { World } from '../ecs';
-import Explorer from '../components/Explorer';
-import Location from '../components/Location';
 import ChunkManager from './ChunkManager';
 
 interface GenerationOptions {
   seed?: string;
 }
 
-export default class Terrain {
+export default class Terrain extends Component {
   private heightmap: Heightmap;
   private chunkGenerator: ChunkGenerator;
   private chunkManager: ChunkManager;
   public object: THREE.Object3D;
   private knownLocations: Map<string, THREE.Vector2>;
 
-  constructor(options: GenerationOptions) {
+  constructor(entity: Entity, options: GenerationOptions) {
+    super(entity);
     const seed = options.seed || Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
     this.heightmap = new Heightmap({ algorithm: 'fast-simplex', octaves: 12, lacunarity: 2.5, persistence: 0.125, seed });
     this.chunkGenerator = new ChunkGenerator(this.heightmap, 32);
@@ -25,7 +26,8 @@ export default class Terrain {
     this.chunkManager = new ChunkManager(this.chunkGenerator);
     this.object = new THREE.Object3D;
     this.object.name = 'Terrain';
-    this.object.add(this.chunkManager.object);
+    this.object.add(this.chunkManager.object)
+    entity.transform.add(this.object);
   }
 
   getPosition(coords: THREE.Vector2) {

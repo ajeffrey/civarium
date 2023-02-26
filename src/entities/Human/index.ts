@@ -1,12 +1,13 @@
 import * as THREE from 'three';
-import { Component, Entity, World } from '../../ecs';
-import Time from '../../Time';
-import Location from '../../components/Location';
-import Stats from '../../components/Stats';
-import { Model } from '../../components/Model';
-import { StateMachine } from '../../components/StateMachine';
-import { ICommand, idle } from '../../commands';
-import Explorer from '../../components/Explorer';
+import { Component, Entity, World } from 'src/ecs';
+import Time from 'src/Time';
+import Location from 'src/components/Location';
+import Stats from 'src/components/Stats';
+import { Model } from 'src/components/Model';
+import { StateMachine } from 'src/components/StateMachine';
+import { Followable } from 'src/components/Followable';
+import { ICommand, idle } from 'src/commands';
+import Explorer from 'src/components/Explorer';
 import { createStateMachine, States } from './State';
 
 export default class Human extends Component {
@@ -23,6 +24,7 @@ export default class Human extends Component {
     super(entity);
     this.hunger = 100;
     this.thirst = 100;
+    entity.addComponent(Followable);
     this._stats = entity.addComponent(Stats, () => this.getStats());
     this.location = entity.addComponent(Location, coords);
     entity.addComponent(Explorer, 10);

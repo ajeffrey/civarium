@@ -62,9 +62,8 @@ ModelLoader.onReady(() => {
   Clock.attach(document.body);
   Time.set(12 * 60);
 
-  const terrain = new Terrain({});
-  scene.add(terrain.object);
-  World.systems.add(terrain);
+  let terrain: any = World.entities.create(scene, 'Terrain');;
+  terrain = terrain.addComponent(Terrain, {});
 
   // Entities
   const sun = World.entities.create(scene, 'Sun');
@@ -80,14 +79,27 @@ ModelLoader.onReady(() => {
     human.addComponent(Human, coords);
   }
 
-  const axes = new THREE.AxesHelper(10);
-  axes.position.set(0, 4, 0);
-  scene.add(axes);
-
-  const console = World.entities.create(scene, 'Console');
-  console.addComponent(Console)
-
+  //const axes = new THREE.AxesHelper(10);
+  //axes.position.set(0, 4, 0);
+  //scene.add(axes);
   let running = true;
+
+  const devConsole = World.entities.create(scene, 'Console');
+  devConsole.addComponent(Console);
+
+  devConsole.getComponent(Console).addCommand('settime', async timeStr => {
+    if(!timeStr.match(/^\d{1,2}:\d{2}$/)) {
+      return 'invalid time\n';
+    }
+    const [h, m] = timeStr.split(':').map(t => parseInt(t, 10));
+    Time.set(h * 60 + m);
+    return 'time set\n';
+  });
+
+  devConsole.getComponent(Console).addCommand('p', async () => {
+    running = !running;
+    return `game ${running ? 'resumed' : 'paused'}\n`;
+  });
 
   window.onblur = () => {
     running = false;

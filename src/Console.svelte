@@ -4,14 +4,14 @@
 <div class="terminal">
   <pre class="output">{output}</pre>
   <form action="" on:submit={executeCommand}>
-    <input type="text" class="input" on:change={updateInput} value={input} use:focus />
+    <input type="text" class="input" autocapitalize="none" on:change={updateInput} value={input} use:focus />
   </form>
 </div>
 {/if}
 <style>
   .toggle {
     position: absolute;
-    right: 0;
+    left: 0;
     bottom: 0;
     background: #00dd00;
     color: white;
@@ -32,9 +32,9 @@
     padding: 10px 0;
     font-family: monospace;
     font-size: 16px;
+    justify-content: flex-end;
   }
   .output {
-    flex-grow: 1;
     padding: 0 10px;
     color: white;
   }
@@ -80,7 +80,7 @@
   function executeCommand(event) {
     event.preventDefault();
     const [command, ...args] = input.split(' ');
-    const toExec = commands.find(c => c.command === command);
+    const toExec = commands.find(c => c.command.toLowerCase() === command.toLowerCase());
     output += `$ ${input}\n`;
     if(!toExec) {
       output += `command "${command}" not found\n`;

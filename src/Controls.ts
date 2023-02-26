@@ -1,79 +1,50 @@
 import * as THREE from 'three';
-import Camera from "./entities/Camera";
-import { World, Entity } from './ecs';
-import Time from './Time';
+import Camera from "src/entities/Camera";
+import { World, Entity } from 'src/ecs';
+import { Followable } from 'src/components/Followable';
+import Time from 'src/Time';
 
 const ARROW_LEFT = 'ArrowLeft';
 const ARROW_UP = 'ArrowUp';
 const ARROW_RIGHT = 'ArrowRight';
 const ARROW_DOWN = 'ArrowDown';
 
+interface Pointer {
+  id: number;
+  x: number;
+  y: number;
+}
+
+function distance(a: Pointer, b: Pointer) {
+  const dx = a.x - b.x;
+  const dy = a.y - b.y;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
 export default class Controls {
   public speed = 10;
   public keys: {[key: string]: boolean};
-  private isDragging: boolean;
-  private dragPos: THREE.Vector2;
   private camera: Camera;
+  private pointers: Pointer[];
 
   constructor(camera: Camera) {
     this.camera = camera;
     this.keys = {};
-    this.dragPos = new THREE.Vector2(0, 0);
-    this.isDragging = false;
+    this.pointers = [];
 
-    window.addEventListener('mousedown', e => {
-      this.isDragging = true;
-      this.dragPos.x = e.clientX;
-      this.dragPos.y = e.clientY;
-    });
 
     window.addEventListener('mousewheel', (e: WheelEvent) => {
       this.camera.zoomBy(-e.deltaY / 50);
     }, { passive: true });
 
-    window.addEventListener('click', (e: MouseEvent) => {
-      const mouse = new THREE.Vector3();
-      mouse.setX(2 * (e.clientX / window.innerWidth) - 1);
-      mouse.setY(1 - 2 * (e.clientY / window.innerHeight));
+    window.addEventListener('click', this.selectEntity)
 
-      const caster = new THREE.Raycaster();
-      caster.setFromCamera(mouse, this.camera.camera);
-      const objects = World.entities.find([]).map(e => e.transform);
-      const intersections = caster.intersectObjects(objects, true);
-      let following: Entity | null = null;
+    window.addEventListener('pointerdown', this.pointerDown);
 
-      for(const intersection of intersections) {
-        if(following) break;
+    window.addEventListener('pointerup', this.pointerUp);
+    window.addEventListener('pointercancel', this.pointerUp);
 
-        let target = intersection.object;
-        while(target) {
-          const entity: Entity | undefined = target.userData?.entity;
-          if(entity) {
-            following = entity;
-            break;
-            
-          } else {
-            target = target.parent;
-          }
-        }
-      }
-
-      this.camera.follow(following);
-    });
-
-    window.addEventListener('mouseup', () => {
-      this.isDragging = false;
-    })
-
-    window.addEventListener('mousemove', e => {
-      if(this.isDragging) {
-        const x = e.clientX - this.dragPos.x;
-        const y = e.clientY - this.dragPos.y;
-        this.camera.rotate(x / 50, y / 50);
-        this.dragPos.x = e.clientX;
-        this.dragPos.y = e.clientY;
-      }
-    });
+    window.addEventListener('pointermove', this.pointerMove, { passive: true });
 
     window.addEventListener('keydown', e => {
       this.keys[e.key] = true;
@@ -82,6 +53,78 @@ export default class Controls {
     window.addEventListener('keyup', e => {
       this.keys[e.key] = false;
     });
+  }
+
+  pointerDown = (e: PointerEvent) => {
+    this.pointers.push({
+      id: e.pointerId,
+      x: e.clientX,
+      y: e.clientY,
+    });
+  }
+
+  pointerUp = (e: PointerEvent) => {
+    this.pointers = this.pointers.filter(p => p.id !== e.pointerId);
+  }
+
+  pointerMove = (e: PointerEvent) => {
+    switch(this.pointers.length) {
+      case 1: {
+        const x = e.clientX - this.pointers[0].x;
+        const y = e.clientY - this.pointers[0].y;
+        this.camera.rotate(x / 50, y / 50);
+        this.pointers[0].x = e.clientX;
+        this.pointers[0].y = e.clientY;
+        break;
+      };
+      case 2: {
+        let [moved, stationary] = this.pointers;
+        if(stationary.id === e.pointerId) {
+          [moved, stationary] = [stationary, moved];
+        }
+
+        const oldDistance = distance(moved, stationary);
+        moved.x = e.clientX;
+        moved.y = e.clientY;
+        const newDistance = distance(moved, stationary);
+        const diff = newDistance - oldDistance;
+        this.camera.zoomBy(diff / 50);
+        break;
+      }
+    }
+  }
+
+  selectEntity = (e: MouseEvent) => {
+    const mouse = new THREE.Vector3();
+    mouse.setX(2 * (e.clientX / window.innerWidth) - 1);
+    mouse.setY(1 - 2 * (e.clientY / window.innerHeight));
+
+    const caster = new THREE.Raycaster();
+    caster.setFromCamera(mouse, this.camera.camera);
+    const objects = World.entities.find([]).map(e => e.transform);
+    const intersections = caster.intersectObjects(objects, true);
+
+    let point: THREE.Vector3 | null = null;
+    for(const intersection of intersections) {
+      let target = intersection.object;
+      while(target) {
+        const entity: Entity | undefined = target.userData?.entity;
+        if(entity && entity.hasComponent(Followable)) {
+          console.log(`follow ${entity.name}:${entity.id}`);
+          this.camera.follow(entity);
+          return;
+          
+        } else {
+          if(!point && intersection.point) point = intersection.point;
+          target = target.parent;
+        }
+      }
+    }
+
+    if(point) {
+      console.log('moving to point', point.toArray().join(','));
+      this.camera.moveTo(point);
+    }
   }
 
   xAxis() {

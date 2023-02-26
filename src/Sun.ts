@@ -31,7 +31,7 @@ export default class Sun extends Component {
     light.shadow.camera.near = 1;
     light.shadow.camera.far = 600;
     light.target.position.set(0, 0, 0);
-    entity.transform.add(new THREE.CameraHelper(light.shadow.camera));
+    //entity.transform.add(new THREE.CameraHelper(light.shadow.camera));
     sun.add(light);
 
     entity.transform.add(sun);

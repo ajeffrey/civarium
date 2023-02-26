@@ -45,6 +45,8 @@ export default class Camera extends Component {
   
   follow(object: Entity | null) {
     this.following = object;
+    this.focus.copy(this.following.transform.position);
+    this._updatePosition();
   }
 
   rotate(h: number, v: number) {
@@ -55,6 +57,13 @@ export default class Camera extends Component {
 
   move(position: THREE.Vector3) {
     this.focus.add(position);
+    this.following = null;
+    this._updatePosition();
+  }
+
+  moveTo(position: THREE.Vector3) {
+    this.focus.copy(position);
+    this.following = null;
     this._updatePosition();
   }
 
