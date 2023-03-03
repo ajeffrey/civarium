@@ -110,7 +110,6 @@ export default class Controls {
       while(target) {
         const entity: Entity | undefined = target.userData?.entity;
         if(entity && entity.hasComponent(Followable)) {
-          console.log(`follow ${entity.name}:${entity.id}`);
           this.camera.follow(entity);
           return;
           
@@ -122,7 +121,6 @@ export default class Controls {
     }
 
     if(point) {
-      console.log('moving to point', point.toArray().join(','));
       this.camera.moveTo(point);
     }
   }

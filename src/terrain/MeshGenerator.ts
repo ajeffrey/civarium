@@ -123,7 +123,7 @@ export default class MeshGenerator {
     const object = new THREE.Object3D();
     object.name = `Terrain Mesh`;
     object.add(mesh);
-    object.add(line);
+    // object.add(line);
     // const helper = new VertexNormalsHelper(mesh, 2, 0xff0000);
     // object.add(helper);
     return object;

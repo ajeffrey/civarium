@@ -27,32 +27,32 @@ class River {
 
 type WaterFeature = Lake;
 
-function floodFind<T>(key: T, n: (key: T) => T[], t: (key: T) => boolean): T[] {
+function* floodFind<T>(key: T, n: (key: T) => T[], t: (key: T) => boolean): Generator<T> {
   const open = new Set<T>([key]);
-  const included = new Set<T>([key]);
+  const closed = new Set<T>([key]);
   while(open.size > 0) {
     const next = [...open][0];
     open.delete(next);
-    const neighbours = n(key);
+    const neighbours = n(next);
     for(const nkey of neighbours) {
-      if(!included.has(nkey) && t(nkey)) {
+      if(!closed.has(nkey) && t(nkey)) {
         open.add(nkey);
-        included.add(nkey);
+        closed.add(nkey);
+        yield nkey;
       }
     }
   }
-
-  return Array.from(included);
 }
 
 export class RainfallSimulator {
   constructor(private size: number) {}
 
   simulate(heightmap: number[]) {
-    const watermap = {};
-    this.rain(heightmap, watermap);
-    this.rain(heightmap, watermap);
-    this.evaporate(watermap, 2);
+    const watermap: Watermap = {};
+    for(let cycles = 0; cycles < 20; cycles++) {
+      this.rain(heightmap, watermap);
+      this.evaporate(watermap, 1.25);
+    }
     const features: WaterFeature[] = [];
     const keys = new Set(Object.keys(watermap).map(n => parseInt(n, 10)));
     while(keys.size > 0) {
@@ -62,19 +62,22 @@ export class RainfallSimulator {
 
       // lake
       if(water.depth) {
-        const cells = floodFind(key, this.keyNeighbours, n => watermap[n]?.depth);
+        const cells = Array.from(floodFind<number>(key, this.keyNeighbours, n => watermap[n] && watermap[n].depth > 0));
         for(const found of cells) {
           keys.delete(found);
         }
 
-        const height = cells.reduce((total, key) => total + heightmap[key] + watermap[key].depth, 0) / cells.length;;
-        features.push(new Lake(height, cells.map(this.key2coord)));
+        const avgHeight = cells.reduce((total, key) => total + heightmap[key] + watermap[key].depth, 0) / cells.length;
+        const expandedArea = Array.from(floodFind<number>(key, this.keyNeighbours, n => heightmap[n] + (key in watermap ? watermap[key].depth : 0) <= avgHeight));
+        const newAvgHeight = expandedArea.reduce((total, key) => total + heightmap[key] +(key in watermap ? watermap[key].depth : 0), 0) / expandedArea.length;
+        
+        features.push(new Lake(newAvgHeight, expandedArea.map(this.key2coord)));
 
       } else if(water.flow > 1) {
         
       }
     }
-
+    if(features.length > 0) console.log('FEATURES: ', features.length, features.map(f => f.cells.length))
     return features;
   }
 
@@ -92,34 +95,61 @@ export class RainfallSimulator {
       for (let x = 0; x < this.size; x++) {
         let coord = { x, y };
         const waterAt = (key: number) => watermap[key] || { flow: 0, depth: 0, flowDir: [0, 0] };
-        const heightAt = (key: number) => heightmap[key];
+        const heightAt = (key: number) => heightmap[key] + waterAt(key).depth;
+        const path = [];
         while (1) {
           const key = this.coord2key(coord);
           const water = waterAt(key);
-          const height = heightAt(key) + water.depth;
+          const height = heightAt(key);
           const ncoords = this.neighbours(coord).map<HCoord>(ncoord => {
             const nkey = this.coord2key(ncoord);
-            const height = heightAt(nkey) + waterAt(nkey).depth;
+            const height = heightAt(nkey);
             return { ...ncoord, height };
           });
           const heights = ncoords.sort((a, b) => a.height - b.height);
-          const fallest = heights[0];
+          let fallest = heights[0];
+          
+          // we hit a plateau - try to tiebreak by flood finding a downhill
+          if(fallest.height === height) {
+            const iterator = floodFind<number>(this.coord2key(fallest), this.keyNeighbours, n => {
+              const height = heightAt(n);
+              return height <= fallest.height;
+            });
+
+            for(const key of iterator) {
+              const height = heightAt(key);
+              if(height < fallest.height) {
+                fallest = { height, ...this.key2coord(key) };
+                break;
+              }
+            }
+          }
+
+          if(fallest.x === 0 || fallest.y === 0 || fallest.x === this.size - 1 || fallest.y === this.size - 1) {
+            break;
+          }
+
 
           // no downhill falls available
-          if (fallest.height >= height) {
-            if(!(fallest.x === 0 || fallest.y === 0 || fallest.x === this.size - 1 || fallest.y === this.size - 1)) {
-              water.depth += 1;
-              watermap[key] = water;
-            }
+          if (fallest.height > height) {
+            water.depth += 1;
+            watermap[key] = water;
+            heightmap[key] += path.length * 0.05;
             break;
+
           } else {
             water.flow += 1;
             water.flowDir[0] += fallest.x - coord.x;
             water.flowDir[1] += fallest.y - coord.y;
+            path.push(key);
             watermap[key] = water;
-            //heightmap[key] -= 0.1; // erosion
+            // heightmap[key] -= 0.1; // erosion
             coord = fallest;
           }
+        }
+
+        for(const key of path) {
+          heightmap[key] -= 0.05;
         }
       }
     }

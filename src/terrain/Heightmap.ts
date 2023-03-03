@@ -14,8 +14,8 @@ interface IOptions {
   seed: string;
 }
 
-const ZOOM = 64;
-const SCALE = 3;
+const ZOOM = 1;
+const SCALE = 1;
 
 const SMOOTHNESS = 3;
 const HEIGHT_FACTOR = 3;
@@ -65,7 +65,7 @@ export default class Heightmap {
     let frequency = 1;
     
     for(let i = 0; i < this.options.octaves; i++) {
-      const noiseValue = this.generator(x * frequency / ZOOM, y * frequency / ZOOM) * SCALE;
+      const noiseValue = this.generator(x / frequency / ZOOM, y / frequency / ZOOM) * SCALE;
       height += noiseValue * amplitude;
       amplitude *= this.options.persistence;
       frequency *= this.options.lacunarity;
@@ -73,8 +73,8 @@ export default class Heightmap {
 
     // round to SMOOTHNESS (e.g. nearest 1/4)
     //5.55 => 22.2 => 22 => 5.5
-    height = height * HEIGHT_FACTOR;
     //height = (Math.round(height * SMOOTHNESS) / SMOOTHNESS) * HEIGHT_FACTOR;
+    height = height * HEIGHT_FACTOR;
      
     this.heights[x] = this.heights[x] || [];
     this.heights[x][y] = height;
