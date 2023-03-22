@@ -18,7 +18,7 @@ const ZOOM = 1;
 const SCALE = 1;
 
 const SMOOTHNESS = 3;
-const HEIGHT_FACTOR = 3;
+const HEIGHT_FACTOR = 1 / 5;
 
 export default class Heightmap {
   private generator: (x: number, y: number) => number;
@@ -26,15 +26,16 @@ export default class Heightmap {
   private options: IOptions;
 
   constructor(options: IOptions) {
+    const rng = seedrandom(options.seed);
     switch(options.algorithm) {
       case 'white': 
-        this.generator = () => Math.random() * 2 - 1;
+        this.generator = () => rng() * 2 - 1;
         break;
       case 'fast-simplex':
-        this.generator = makeNoise2D();
+        this.generator = makeNoise2D(rng);
         break;
       case 'simplex':
-        const noise = new SimplexNoise(options.seed);
+        const noise = new SimplexNoise(rng);
         this.generator = (x: number, y: number) => noise.noise2D(x, y);
         break;
     }

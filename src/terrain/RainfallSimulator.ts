@@ -49,7 +49,7 @@ export class RainfallSimulator {
 
   simulate(heightmap: number[]) {
     const watermap: Watermap = {};
-    for(let cycles = 0; cycles < 20; cycles++) {
+    for(let cycles = 0; cycles < 2; cycles++) {
       this.rain(heightmap, watermap);
       this.evaporate(watermap, 1.25);
     }
@@ -126,9 +126,9 @@ export class RainfallSimulator {
           }
 
           if(fallest.x === 0 || fallest.y === 0 || fallest.x === this.size - 1 || fallest.y === this.size - 1) {
+            path.push(this.coord2key(fallest));
             break;
           }
-
 
           // no downhill falls available
           if (fallest.height > height) {
@@ -150,6 +150,14 @@ export class RainfallSimulator {
 
         for(const key of path) {
           heightmap[key] -= 0.05;
+        }
+
+        for(const key of path) {
+          const h = heightmap[key];
+          for(const n of this.keyNeighbours(key)) {
+            const nh = heightmap[n];
+            heightmap[n] -= (nh - h) * 0.1;
+          }
         }
       }
     }
