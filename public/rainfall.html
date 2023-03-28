@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Civarium</title>
   <style>
@@ -13,20 +13,19 @@
     html, body {
       height: 100%;
       overscroll-behavior: none;
-      overflow: hidden;
     }
     body {
       display: flex;
     }
     canvas {
-      flex-grow: 1;
-      touch-action: none;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: -webkit-crisp-edges;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
     }
   </style>
 </head>
 <body>
-  <script src="//cdn.jsdelivr.net/npm/eruda"></script>
-  <script>eruda.init();</script>
-  <script src="/build.js"></script>
+  <script src="/build/rainfall.js"></script>
 </body>
 </html>

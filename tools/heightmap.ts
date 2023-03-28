@@ -78,5 +78,3 @@ function render() {
 (document.getElementById('p') as HTMLInputElement).onchange = setPersistence;
 
 render();
-
-
