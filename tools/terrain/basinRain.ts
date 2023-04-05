@@ -11,7 +11,7 @@ interface Cell {
   sink: string | null;
 }
 
-const adjacencies: [number, number] = [];
+const adjacencies: [number, number][] = [];
 
 for(let nx = -1; nx <= 1; nx++) {
   for(let ny = -1; ny <= 1; ny++) {
@@ -30,8 +30,8 @@ function mapCell(x: number, y: number) {
   const key = `${x}:${y}`;
   if(key in cells) return;
   const height = heightmap.getIntHeight(x, y);
-  const neighbours = adjacencies.map(([nx, ny]) => ([x + nx, y + ny]));
-  const obj = { height, sink: null };
+  const neighbours: [number, number][] = adjacencies.map(([nx, ny]) => ([x + nx, y + ny]));
+  const obj = { height, sink: null, sources: [] };
   let lowest = null;
   let lowestHeight = height;
   for(const n of neighbours) {
@@ -66,14 +66,14 @@ for(const key in sourcemap) {
 }
 
 console.log('source counts:', sizes);
-const maxSize = Math.max(...Object.keys(sizes));
+const maxSize = Math.max(...Object.keys(sizes).map(s => parseInt(s, 10)));
 
 const flowmap: {[key:string]: number} = {};
 function getFlow(x: number, y: number) {
   const key = x + ':' + y;
   if(!(key in flowmap)) {
     const sources = (sourcemap[key] || []);
-    const flow = sources.reduce((acc, s) => acc + 1 + getFlow(...s.split(':').map(n => parseInt(n))), 0);
+    const flow = sources.reduce((acc, s) => acc + 1 + getFlow(...(s.split(':').map(n => parseInt(n))) as [number, number]), 0);
     flowmap[key] = flow;
   }
   return flowmap[key];

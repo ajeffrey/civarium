@@ -9,6 +9,7 @@
   "devDependencies": {
     "@types/stats.js": "^0.17.0",
     "@types/three": "^0.127.1",
+    "sass": "^1.60.0",
     "shortid": "^2.2.13",
     "stats.js": "^0.17.0",
     "svelte": "^3.55.1",
