@@ -18,7 +18,6 @@ const ZOOM = 1;
 const SCALE = 1;
 
 const SMOOTHNESS = 3;
-const HEIGHT_FACTOR = 1 / 5;
 
 export default class Heightmap {
   private generator: (x: number, y: number) => number;
@@ -55,6 +54,13 @@ export default class Heightmap {
     return heights;
   }
 
+  getOctave(oct: number, x: number, y: number) {
+    const freq = Math.pow(this.options.lacunarity, oct);
+    const amp = Math.pow(this.options.persistence, oct);
+    const val =  this.generator(x / freq, y / freq);
+    return val;
+  }
+
   getIntHeight(x: number, y: number) {
     const cachedHeight = this.heights[x] && this.heights[x][y];
     if(typeof cachedHeight === 'number') {
@@ -65,17 +71,20 @@ export default class Heightmap {
     let amplitude = 1;
     let frequency = 1;
     
+    let divisor = 0;
     for(let i = 0; i < this.options.octaves; i++) {
-      const noiseValue = this.generator(x / frequency / ZOOM, y / frequency / ZOOM) * SCALE;
+      const noiseValue = this.generator(x / frequency, y / frequency);
       height += noiseValue * amplitude;
+      divisor += amplitude;
       amplitude *= this.options.persistence;
       frequency *= this.options.lacunarity;
     }
 
+    height /= divisor;
+
     // round to SMOOTHNESS (e.g. nearest 1/4)
     //5.55 => 22.2 => 22 => 5.5
     //height = (Math.round(height * SMOOTHNESS) / SMOOTHNESS) * HEIGHT_FACTOR;
-    height = height * HEIGHT_FACTOR;
      
     this.heights[x] = this.heights[x] || [];
     this.heights[x][y] = height;

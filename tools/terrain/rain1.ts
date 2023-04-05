@@ -3,7 +3,7 @@ import Heightmap from "src/terrain/Heightmap";
 const testSize = 256;
 const scaled = testSize * 2;
 const seed = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
-const heightmap = new Heightmap({ algorithm: 'fast-simplex', octaves: 12, lacunarity: 5, persistence: 0.25, seed });
+const heightmap = new Heightmap({ algorithm: 'fast-s    implex', octaves: 8, lacunarity: 3, persistence: 2, seed });
 const cells: Array<{ x: number, y: number, h: number, wh: number, f: number, fl: number }> = [];
 let min = 0;
 let max = 0;

@@ -607,6 +607,13 @@ supports-preserve-symlinks-flag@^1.0.0:
   resolved "https://registry.yarnpkg.com/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz#6eda4bd344a3c94aea376d4cc31bc77311039e09"
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
 
+svelte-canvas@^0.9.3:
+  version "0.9.3"
+  resolved "https://registry.yarnpkg.com/svelte-canvas/-/svelte-canvas-0.9.3.tgz#df58d8aef97e06a93ee957e144db43c06e517a11"
+  integrity sha512-sGYivBdOjAbYSHtzzcwqXGu40Mgj1/GhTLLMH5tYyGdZo2XdJz07+AvapSxtSGIggJ2aDuStYBW6YvK5rLxW+Q==
+  dependencies:
+    svelte "^3.55.0"
+
 svelte-preprocess@^5.0.1:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/svelte-preprocess/-/svelte-preprocess-5.0.1.tgz#3dd21a17eb508347d4b26a0d98059d23e2d1b9a0"
@@ -618,6 +625,11 @@ svelte-preprocess@^5.0.1:
     magic-string "^0.27.0"
     sorcery "^0.11.0"
     strip-indent "^3.0.0"
+
+svelte@^3.55.0:
+  version "3.58.0"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.58.0.tgz#d3e6f103efd6129e51c7d709225ad3b4c052b64e"
+  integrity sha512-brIBNNB76mXFmU/Kerm4wFnkskBbluBDCjx/8TcpYRb298Yh2dztS2kQ6bhtjMcvUhd5ynClfwpz5h2gnzdQ1A==
 
 svelte@^3.55.1:
   version "3.55.1"

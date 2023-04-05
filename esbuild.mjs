@@ -3,13 +3,13 @@ import * as esbuild from 'esbuild'
 import sveltePlugin from "esbuild-svelte";
 import sveltePreprocess from 'svelte-preprocess';
 
-const tools = fs.readdirSync('./tools');
+const tools = fs.readdirSync('./tools').filter(t => !t.endsWith('.swp'));
 
 const config = {
   entryPoints: [
     { in: 'src/index.ts', out: 'game' },
     ...tools.map(t => ({
-      in: `./tools/${t}`,
+      in: `tools/${t}`,
       out: t.replace('.ts', ''), 
     }))
   ],
@@ -19,9 +19,17 @@ const config = {
     compilerOptions: {
       css: true
     },
-    preprocess: sveltePreprocess()
+    preprocess: sveltePreprocess(),
+    filterWarnings(warning) {
+      const ignore = ['a11y-label-has-associated-control'];
+      return !ignore.includes(warning.code);
+    }
   })],
 };
+
+if(process.argv.includes('--tools')) {
+  config.entryPoints = config.entryPoints.filter(e => e.in.startsWith('tools/'));
+}
 
 if(process.argv.includes('--watch')) {
   const ctx = await esbuild.context(config);
