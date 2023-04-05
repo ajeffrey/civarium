@@ -68,16 +68,16 @@
     magnifier = { x, y, cells: magCells, flip };
   }
 
-  function cellColour(cell: Cell | null): [number, number, number] {
+  function cellColour(cell: Cell | null, edge: boolean = false): [number, number, number] {
     if(!cell) {
       return [255, 255, 255];
     }
 
     const height = (cell.height - min) / (max - min) * 255;
     if(cell.lake || cell.river) {
-      return[(cell.lake || cell.river).id, 0, height];
+      return[edge ? 50 : 0, 0, height];
     } else {
-      return [height, height, height];
+      return [edge ? (height > 200 ? height - 50 : height + 50) : height, height, height];
     }
   }
 
@@ -122,23 +122,6 @@
         return height;
       }
 
-      cells = (() => {
-        switch(rainType) {
-        case 'chunk': {
-          return chunkRain({ size: mapSize, getHeight, minFlow });
-        };
-        default: {
-          const cells: Cell[] = [];
-          for (let y = 0; y < mapSize; y++) {
-            for (let x = 0; x < mapSize; x++) {
-              const height = getHeight(x, y);
-              cells.push({ height });
-            }
-          }
-          return cells;
-        }
-      }
-      })();
 
       const ctx = c.getContext("2d");
       ctx.clearRect(0, 0, c.width, c.height);
@@ -147,8 +130,43 @@
         c.width = mapSize;
         c.height = mapSize;
         ctx.imageSmoothingEnabled = false;
+        ctx.translate(0.5, 0.5);  
 
-        ctx.translate(0.5, 0.5);
+        for(let cy = 0; cy < chunkCount; cy++) {
+          for(let cx = 0; cx < chunkCount; cx++) {
+            const offX = cx * chunkSize;
+            const offY = cy * chunkSize;
+            const getChunkHeight = (x: number, y: number) => getHeight(x + offX, y + offY);
+            const chunk = (() => {
+              switch(rainType) {
+                case "chunk":
+                  return chunkRain({
+                    size: chunkSize,
+                    minFlow,
+                    getHeight: getChunkHeight
+                  });
+                default: {
+                  const cells: Cell[] = [];
+                  for (let y = 0; y < chunkSize; y++) {
+                    for (let x = 0; x < chunkSize; x++) {
+                      const height = getChunkHeight(x, y);
+                      cells.push({ height });
+                    }
+                  }
+                  return cells;
+                };
+              }
+            })();
+
+            //cells = [];
+            for(let y = 0; y < chunkSize; y++) {
+              for(let x = 0; x < chunkSize; x++) {
+                cells[offX + x + mapSize * (offY + y)] = chunk[x + chunkSize * y];
+              }
+            }
+          }
+        }
+
         min = Infinity;
         max = -Infinity;
         for (let i = 0; i < mapSize * mapSize; i++) {
@@ -159,7 +177,8 @@
 
         const image = ctx.createImageData(mapSize, mapSize);
         for (let i = 0; i < mapSize * mapSize; i++) {
-          setPx(image, i, ...cellColour(cells[i]));
+          const edge = (i % chunkSize == 0 || Math.floor(i / mapSize) % chunkSize == 0);
+          setPx(image, i, ...cellColour(cells[i], edge));
         }
 
         ctx.putImageData(image, 0, 0);
@@ -226,7 +245,7 @@
       {/each}
     </div>
   {/if}
-  <canvas bind:this={c} on:pointermove={showMagnifier} on:pointerleave={hideMagnifier} />
+  <canvas bind:this={c} on:pointermove={showMagnifier} on:pointerleave={hideMagnifier} on:pointerdown={showMagnifier} />
 </div>
 
 <style lang="scss">
