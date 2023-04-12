@@ -1,10 +1,6 @@
 import Heightmap from "src/terrain/Heightmap";
 
-const testSize = 256;
-const scaled = testSize * 4;
-const seed = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
-const heightmap = new Heightmap({ algorithm: 'fast-simplex', octaves: 2, lacunarity: 10, persistence: 2, seed });
-
+export function basinRain() {
 interface Cell {
   height: number;
   sources: string[];

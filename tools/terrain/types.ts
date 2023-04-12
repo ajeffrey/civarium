@@ -10,3 +10,12 @@ export interface Cell {
     id: number;
   }
 }
+
+export interface Props {
+  size: number;
+  minFlow: number;
+  erosion: number;
+  iterations: number;
+  getHeight(x: number, y: number): number;
+}
+

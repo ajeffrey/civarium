@@ -22,6 +22,8 @@
 
   let rainType: RainType = 'none';
   let minFlow: number = 10;
+  let erosion: number = 0.1;
+  let iterations: number = 1;
 
   let time: number | null = null;
   let magnifier: Magnifier | null = null;
@@ -41,11 +43,12 @@
 
   let c: HTMLCanvasElement;
   let cells: Cell[] = [];
-  let min = Infinity, max = -Infinity;
+  let min = Infinity, max = -Infinity, maxFlow = 0;
 
   const magRadius = 2;
 
   function showMagnifier(event: PointerEvent) {
+    event.preventDefault();
     const cbr = c.getBoundingClientRect();
     const x = event.clientX - cbr.left;
     const y = event.clientY - cbr.top;
@@ -75,7 +78,10 @@
 
     const height = (cell.height - min) / (max - min) * 255;
     if(cell.lake || cell.river) {
-      return[edge ? 50 : 0, 0, height];
+      const b = cell.water / maxFlow;
+      const be = Math.sqrt(1 - Math.pow(b - 1, 2)); // circle arc easing
+      const bh = (1 - be) * height;
+      return[edge ? 50 : bh, bh, height + (be * (255 - height))];
     } else {
       return [edge ? (height > 200 ? height - 50 : height + 50) : height, height, height];
     }
@@ -143,6 +149,8 @@
                   return chunkRain({
                     size: chunkSize,
                     minFlow,
+                    erosion,
+                    iterations,
                     getHeight: getChunkHeight
                   });
                 default: {
@@ -169,10 +177,12 @@
 
         min = Infinity;
         max = -Infinity;
+        maxFlow = 0;
         for (let i = 0; i < mapSize * mapSize; i++) {
-          const height = cells[i].height;
+          const { height, water } = cells[i];
           if(height < min) min = height;
           if(height > max) max = height;
+          if(water > maxFlow) maxFlow = water;
         }
 
         const image = ctx.createImageData(mapSize, mapSize);
@@ -226,6 +236,14 @@
       </select>
     </p>
     <p>
+      <label for="erosion">erosion</label>
+      <input type="number" name="erosion" bind:value={erosion} />
+    </p>
+    <p>
+      <label for="iterations">iterations</label>
+      <input type="number" name="iterations" bind:value={iterations} />
+    </p>
+    <p>
       <label for="minFlow">minimum river flow</label>
       <input type="number" name="minFlow" bind:value={minFlow} />
     </p>
@@ -239,7 +257,9 @@
         <div class="cell" style={`background: rgb(${cellColour(cell).join(',')})`}>
           {#if cell?.river}
             <div class="dir">{cellCorner(cell.river)}</div>
-            <div class="vol">{cell.river.flow}</div>
+          {/if}
+          {#if cell?.water}
+            <div class="vol">{cell.water.toFixed()}</div>
           {/if}
         </div>
       {/each}
@@ -268,7 +288,10 @@
   }
   .wrap {
     position: relative;
+    touch-action: none;
+    overflow: hidden;
     .timer {
+      pointer-events: none;
       position: absolute;
       display: block;
       padding: 5px;
@@ -328,5 +351,6 @@
   }
   canvas {
     width: 100%;
+    touch-action: none;
   }
 </style>
