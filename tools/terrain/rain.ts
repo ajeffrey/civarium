@@ -1,4 +1,24 @@
-import { Cell, Props } from './types';
+export interface Cell {
+  height: number;
+  river?: {
+    direction: [number, number];
+    flow: number;
+    id: number;
+  }
+  lake?: {
+    depth: number;
+    id: number;
+  }
+}
+
+export interface Props {
+  size: number;
+  minFlow: number;
+  erosion: number;
+  iterations: number;
+  getHeight(x: number, y: number): number;
+  probablisticFlow: boolean;
+}
 
 interface LocalCell extends Cell {
   x: number;
@@ -8,14 +28,21 @@ interface LocalCell extends Cell {
   h: number; //effective height including water depth
 }
 
-export function chunkRain({ size, minFlow, erosion, iterations, getHeight }: Props) {
-  const cells: LocalCell[] = [];
+export function simulateRain({
+  size,
+  minFlow,
+  erosion,
+  iterations,
+  getHeight,
+  probablisticFlow
+}: Props) {
+  const cells: {[key:string]: LocalCell} = {};
   let min = 0;
   let max = 0;
   for(let y = 0; y < size; y++) {
     for(let x = 0; x < size; x++) {
       const height = getHeight(x, y);
-      cells.push({ x, y, height, id: Math.floor(Math.random() * 255), h: height, water: 1 });
+      cells[x + ':' + y] = { x, y, height, id: Math.floor(Math.random() * 255), h: height, water: 1 };
       min = Math.min(height, min);
       max = Math.max(height, max);
     }
@@ -31,7 +58,7 @@ export function chunkRain({ size, minFlow, erosion, iterations, getHeight }: Pro
    */
   function rain() {
     let iters = 0;
-    const sorted = cells.slice().sort((a, b) => b.h - a.h);
+    const sorted = Object.values(cells).sort((a, b) => b.h - a.h);
     for(const cell of sorted) {
       console.log(`start at ${cell.x},${cell.y}`);
       iters += 1;
@@ -46,7 +73,7 @@ export function chunkRain({ size, minFlow, erosion, iterations, getHeight }: Pro
         [1, 0],
         [1, 1],
       ].map(([x, y]) => ({ x: cell.x + x, y: cell.y + y })).filter(({ x, y }) => x >= 0 && y >= 0 && x < size && y < size);
-      const neighbours = ncoords.map(({ x, y }) => cells[y * size + x]);
+      const neighbours = ncoords.map(({ x, y }) => cells[x + ':' + y]);
       const heights = neighbours.sort((a, b) => a.h - b.h);
       let water = cell.water;
       while(water > 0) {
@@ -74,7 +101,7 @@ export function chunkRain({ size, minFlow, erosion, iterations, getHeight }: Pro
   function dry(amt: number) {
     for(let y = 0; y < size; y++) {
       for(let x = 0; x < size; x++) {
-        const cell = cells[y * size + x];
+        const cell = cells[x + ':' + y];
         if(cell.lake) {
           if(cell.lake.depth <= amt) {
             delete cell.lake;
@@ -87,20 +114,23 @@ export function chunkRain({ size, minFlow, erosion, iterations, getHeight }: Pro
   }
 
   function minRivers(amt: number) {
+    const list: LocalCell[] = [];
     for(let y = 0; y < size; y++) {
       for(let x = 0; x < size; x++) {
-        const cell = cells[y * size + x];
+        const cell = cells[x + ':' + y];
         if(cell && cell.river && cell.water < amt) {
           delete cell.river;
         }
+        list.push(cell);
       }
     }
+
+    return list;
   }
 
   for(let i = 0; i < iterations; i++) {
     rain();
     dry(1);
   }
-  minRivers(minFlow);
-  return cells;
+  return minRivers(minFlow);
 }

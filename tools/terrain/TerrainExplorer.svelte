@@ -1,7 +1,6 @@
 <script lang="ts">
   import Heightmap from "src/terrain/Heightmap";
-  import { Cell } from './types';
-  import { chunkRain } from './chunkRain';
+  import { simulateRain, Cell } from './rain';
   // import { basinRain } from './basinRain';
 
   interface Magnifier {
@@ -24,11 +23,16 @@
   let minFlow: number = 10;
   let erosion: number = 0.1;
   let iterations: number = 1;
+  let probablisticFlow = false;
 
   let time: number | null = null;
   let magnifier: Magnifier | null = null;
 
-  const seed = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
+  let seed = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
+
+  function regen() {
+     seed = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
+  }
 
   function setPx(img, idx, r, g = r, b = g, a = 255) {
     img.data[idx * 4] = r;
@@ -138,6 +142,7 @@
         ctx.imageSmoothingEnabled = false;
         ctx.translate(0.5, 0.5);  
 
+        let t = Date.now();
         for(let cy = 0; cy < chunkCount; cy++) {
           for(let cx = 0; cx < chunkCount; cx++) {
             const offX = cx * chunkSize;
@@ -146,12 +151,13 @@
             const chunk = (() => {
               switch(rainType) {
                 case "chunk":
-                  return chunkRain({
+                  return simulateRain({
                     size: chunkSize,
                     minFlow,
                     erosion,
                     iterations,
-                    getHeight: getChunkHeight
+                    getHeight: getChunkHeight,
+                    probablisticFlow
                   });
                 default: {
                   const cells: Cell[] = [];
@@ -169,11 +175,14 @@
             //cells = [];
             for(let y = 0; y < chunkSize; y++) {
               for(let x = 0; x < chunkSize; x++) {
-                cells[offX + x + mapSize * (offY + y)] = chunk[x + chunkSize * y];
+                cells[offX + x + mapSize * (offY + y)] = chunk[x + y * chunkSize];
               }
             }
           }
         }
+
+        t = Date.now() - t;
+        console.log(`calc xmpleted in ${t}ms`);
 
         min = Infinity;
         max = -Infinity;
@@ -201,6 +210,11 @@
 <div class="grid">
   <div class="col">
     <h2>Heightmap</h2>
+    <p>
+      <label for="seed">seed</label>
+      <input type="text" name="seed" bind:value={seed} />
+      <button on:click={regen}>regen</button>
+    </p>
     <p>
       <label for="chunkSize">chunk size</label>
       <input type="number" name="chunkSize" bind:value={chunkSize} />
@@ -234,6 +248,10 @@
         <option value="chunk">Chunk</option>
         <option value="basin">Basin</option>
       </select>
+    </p>
+    <p>
+      <label for="probablisticFlow">probablistic flow</label>
+      <input type="checkbox" name="probablisticFlow" bind:checked={probablisticFlow} />
     </p>
     <p>
       <label for="erosion">erosion</label>
@@ -337,6 +355,12 @@
     align-items: center;
     & + & {
       padding-top: 0;
+    }
+    button {
+      box-sizing: border-box;
+      padding: 3px 8px;
+      border: 1px solid #999;
+      margin-left: 10px;
     }
   }
   label {
